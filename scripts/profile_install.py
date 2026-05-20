@@ -32,6 +32,7 @@ from utils import (
     warn,
 )
 from utils.profile_loader import get_profile, load_all_profiles
+from utils.sandbox import looks_dangerous
 
 
 def install_profile(
@@ -122,6 +123,9 @@ def install_profile(
                 continue
             seen_external.add(ext.name)
             info(f"Installing {ext.name} - {ext.description}")
+            info(f"[AUDIT] Commande : {ext.cmd}")
+            for finding in looks_dangerous(ext.cmd):
+                warn(f"[AUDIT] {ext.name} : pattern suspect : {finding}")
             result = run_command(["bash", "-c", ext.cmd])
             state.record(
                 action=ACTION_EXTERNAL_INSTALL,

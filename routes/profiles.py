@@ -31,6 +31,7 @@ from utils import (
     timeshift_create_snapshot,
 )
 from utils.profile_loader import get_profile, load_all_profiles
+from utils.sandbox import looks_dangerous
 
 bp = Blueprint("profiles", __name__)
 
@@ -271,6 +272,9 @@ def install_custom():
                 if not name or not cmd:
                     continue
                 log_info(f"Externe : {name}")
+                log_info(f"[AUDIT] Commande : {cmd}")
+                for finding in looks_dangerous(cmd):
+                    log_warn(f"[AUDIT] {name} : pattern suspect : {finding}")
                 result = run_command(["bash", "-c", cmd])
                 state.record(ACTION_EXTERNAL_INSTALL, name, result.success,
                              rollback_cmd=[], metadata={"description": desc, "manual_rollback": True})

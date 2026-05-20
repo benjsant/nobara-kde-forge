@@ -5,6 +5,7 @@ import json
 import tempfile
 from pathlib import Path
 
+from .sandbox import bwrap_available, looks_dangerous, wrap_user_command
 from .subprocess_utils import git_clone, run_command
 
 
@@ -99,8 +100,36 @@ class ThemeManager:
                     return False, f"Echec git clone : {result.stderr}"
 
                 print(f"Installation de {theme_name}...")
+
+                # Audit : detecte les patterns suspects dans la commande user
+                suspicious = looks_dangerous(install_cmd)
+                if suspicious:
+                    print(f"  [AUDIT] Patterns suspects detectes : {', '.join(suspicious)}")
+
+                # Sandbox bwrap si dispo ET commande user-level (pas de sudo).
+                # Les `cmd_root` qui font sudo ne sont pas sandboxables (l'escalade
+                # casse le user namespace).
+                inner = ["bash", "-c", install_cmd]
+                if bwrap_available() and "sudo " not in install_cmd:
+                    # Autorise l'ecriture dans les destinations themes legitimes
+                    # + le clone_path (build dir temporaire)
+                    home = Path.home()
+                    writables = [
+                        str(home / ".themes"),
+                        str(home / ".icons"),
+                        str(home / ".local"),
+                        str(home / ".config"),
+                        str(clone_path),
+                    ]
+                    # Cree les dossiers parents si absents (bwrap --bind echoue sinon)
+                    for p in writables:
+                        Path(p).mkdir(parents=True, exist_ok=True)
+                    cmd = wrap_user_command(inner, writable_paths=writables)
+                else:
+                    cmd = inner
+
                 result = run_command(
-                    ["bash", "-c", install_cmd],
+                    cmd,
                     cwd=clone_path, capture_output=True, timeout=300
                 )
                 if not result.success:

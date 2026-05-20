@@ -10,6 +10,7 @@ if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from utils import ACTION_EXTERNAL_INSTALL, error, get_state_manager, info, run_command, success, warn
+from utils.sandbox import looks_dangerous
 
 CONFIG_FILE = Path(__file__).parent.parent / "configs/external_packages.json"
 
@@ -24,6 +25,14 @@ def install_package(pkg):
         return
 
     info(f"Installation de {name} - {desc}...")
+
+    # Audit : log la commande complete + patterns suspects.
+    # Les commandes externes contiennent typiquement `sudo dnf install ...`,
+    # non sandboxables via bwrap (escalade root). On se contente d'auditer.
+    info(f"[AUDIT] Commande : {cmd}")
+    for finding in looks_dangerous(cmd):
+        warn(f"[AUDIT] {name} : pattern suspect detecte : {finding}")
+
     result = run_command(["bash", "-c", cmd])
 
     get_state_manager().record(

@@ -42,6 +42,10 @@ GitHub Actions ([.github/workflows/ci.yml](.github/workflows/ci.yml)) : matrix P
   - Header `Host` doit être `localhost[:port]` ou `127.0.0.1[:port]` — bloque DNS rebinding (sinon 421).
   - Sur POST/PUT/DELETE : `Origin` ou `Referer` doit avoir un host autorisé — bloque CSRF cross-origin (sinon 403).
   - GET reste ouvert (favoris/refresh navigateur).
+- **Sandbox des commandes user** ([utils/sandbox.py](utils/sandbox.py)) :
+  - `bwrap` (bubblewrap) enveloppe les `cmd_user` des thèmes : filesystem read-only sauf `~/.themes`, `~/.icons`, `~/.local`, `~/.config` et le clone path. PID/UTS namespace isolés, network gardé.
+  - **Non applicable** aux commandes avec `sudo` (escalade root casse le user namespace) — pour celles-là, **audit log** systématique : la commande complète est affichée + `looks_dangerous()` détecte patterns suspects (eval, `/dev/tcp`, fork bomb, `rm -rf /`, pipes `curl|bash`, etc.).
+  - Fallback transparent si `bwrap` absent.
 
 ### Pre-commit
 

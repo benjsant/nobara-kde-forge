@@ -24,6 +24,7 @@ from utils import (
     success,
     warn,
 )
+from utils.sandbox import bwrap_available, looks_dangerous, wrap_user_command
 
 # ---------------------------------------------------------------------
 # Project-root-relative paths
@@ -80,8 +81,26 @@ def install_theme(theme: dict, target_dir: Path):
     run_sudo_command(["chown", "-R", f"{USER_NAME}:{USER_NAME}", str(target_dir)])
 
     if cmd_user:
-        run_command(["bash", "-c", cmd_user], cwd=target_dir)
+        # Audit + sandbox bwrap pour les commandes user-level (cmd_user)
+        for finding in looks_dangerous(cmd_user):
+            warn(f"[AUDIT] {name} cmd_user : {finding}")
+        inner = ["bash", "-c", cmd_user]
+        if bwrap_available() and "sudo " not in cmd_user:
+            from pathlib import Path as _P
+            home = _P.home()
+            writables = [str(home / ".themes"), str(home / ".icons"),
+                         str(home / ".local"), str(home / ".config"),
+                         str(target_dir)]
+            for p in writables:
+                _P(p).mkdir(parents=True, exist_ok=True)
+            cmd = wrap_user_command(inner, writable_paths=writables)
+        else:
+            cmd = inner
+        run_command(cmd, cwd=target_dir)
     if cmd_root:
+        # cmd_root utilise sudo : non sandboxable. Audit uniquement.
+        for finding in looks_dangerous(cmd_root):
+            warn(f"[AUDIT] {name} cmd_root : {finding}")
         run_sudo_command(["bash", "-c", cmd_root], cwd=target_dir)
 
     success(f"{name} installed.")
