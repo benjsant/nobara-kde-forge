@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """NobaraForgeKDE - Interface web Flask."""
 
+import sys
+
 from flask import Flask, render_template
 
 from routes import (
@@ -14,12 +16,20 @@ from routes import (
     system,
     themes,
 )
-from routes.shared import log_info
+from routes.shared import log_info, log_warn
+from utils.lockfile import LockfileError, acquire
+from utils.security import register_security
+
+PORT = 5000
 
 app = Flask(__name__,
             template_folder='web/templates',
             static_folder='web/static')
 app.json.sort_keys = False
+
+# Anti-CSRF / anti-DNS-rebinding (Host check + Origin check sur POST).
+# Doit etre enregistre AVANT les blueprints pour intercepter tout le trafic.
+register_security(app, port=PORT)
 
 app.register_blueprint(legacy.bp)
 app.register_blueprint(profiles.bp)
@@ -38,8 +48,17 @@ def index():
 
 
 def main():
-    log_info("NobaraForgeKDE demarre sur http://localhost:5000")
-    app.run(host='127.0.0.1', port=5000, debug=False, threaded=True)
+    try:
+        acquire()
+    except LockfileError as e:
+        log_warn(str(e))
+        print(f"[ERREUR] {e}", file=sys.stderr)
+        print("        Si vous etes sur que l'autre instance est morte : "
+              "supprimez le lock manuellement, puis relancez.", file=sys.stderr)
+        sys.exit(2)
+
+    log_info(f"NobaraForgeKDE demarre sur http://localhost:{PORT}")
+    app.run(host='127.0.0.1', port=PORT, debug=False, threaded=True)
 
 
 if __name__ == '__main__':

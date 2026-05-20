@@ -35,6 +35,14 @@ Les scripts dans `scripts/` sont invoqués depuis Flask via `python -m scripts.<
 
 GitHub Actions ([.github/workflows/ci.yml](.github/workflows/ci.yml)) : matrix Python 3.10-3.13, `uv sync --group dev`, `compileall`, **ruff check**, pytest, `bash -n` sur le launcher, validation JSON.
 
+### Securite
+
+- **Lock file global** ([utils/lockfile.py](utils/lockfile.py)) : `$XDG_RUNTIME_DIR/nobaraforgekde.lock` (fallback `/tmp/`) contient le PID Flask. Au démarrage : si le PID est vivant → refus avec exit 2. Stale (PID mort) → écrasé. `atexit` retire le lock si PID match. Évite que deux UI se marchent dessus sur DNF lock / `data/state.json`.
+- **Anti-CSRF / DNS-rebinding** ([utils/security.py](utils/security.py)) :
+  - Header `Host` doit être `localhost[:port]` ou `127.0.0.1[:port]` — bloque DNS rebinding (sinon 421).
+  - Sur POST/PUT/DELETE : `Origin` ou `Referer` doit avoir un host autorisé — bloque CSRF cross-origin (sinon 403).
+  - GET reste ouvert (favoris/refresh navigateur).
+
 ### Pre-commit
 
 ```bash

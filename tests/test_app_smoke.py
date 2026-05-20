@@ -14,6 +14,23 @@ def _ensure_root_on_path(monkeypatch):
 
 @pytest.fixture
 def client():
+    """Test client configure avec Host + Origin valides (simule un navigateur
+    sur http://localhost:5000). Bypasse les checks anti-CSRF par defaut pour
+    que les tests POST n'aient pas a configurer ces headers manuellement."""
+    import os
+    os.chdir(ROOT)
+    from web_app import app
+    app.config["TESTING"] = True
+    c = app.test_client()
+    c.environ_base["HTTP_HOST"] = "localhost:5000"
+    c.environ_base["HTTP_ORIGIN"] = "http://localhost:5000"
+    return c
+
+
+@pytest.fixture
+def raw_client():
+    """Test client SANS Host/Origin par defaut — pour tester explicitement
+    les protections anti-CSRF."""
     import os
     os.chdir(ROOT)
     from web_app import app
