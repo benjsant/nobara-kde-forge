@@ -1,0 +1,21 @@
+{
+  "name": "NVIDIA GPU",
+  "description": "Pilotes et outils pour cartes graphiques NVIDIA",
+  "icon": "gpu",
+  "apt": [
+    { "name": "mesa-vulkan-drivers", "description": "Pilotes Vulkan Mesa" },
+    { "name": "vulkan-loader", "description": "Loader Vulkan" },
+    { "name": "vulkan-tools", "description": "Outils Vulkan (vulkaninfo, vkcube)" },
+    { "name": "mesa-demos", "description": "Utilitaires Mesa (glxinfo, glxgears)" },
+    { "name": "nvtop", "description": "Moniteur GPU NVIDIA interactif" }
+  ],
+  "flatpak": [],
+  "external": [
+    {
+      "name": "Pilotes NVIDIA via nobara-driver-manager",
+      "description": "Installation/changement de pilote NVIDIA via l'outil Nobara unifie (remplace nobara-nvidia-wizard depuis Nobara 41)",
+      "cmd": "command -v nobara-driver-manager >/dev/null && nobara-driver-manager || echo 'nobara-driver-manager absent — installez nobara-driver-manager'"
+    }
+  ],
+  "remove": []
+}

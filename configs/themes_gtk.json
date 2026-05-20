@@ -1,0 +1,20 @@
+{
+  "themes": [
+    {
+      "name": "Breeze",
+      "name_to_use": "Breeze",
+      "url": "",
+      "cmd_user": "",
+      "cmd_root": "",
+      "description": "Default KDE Breeze GTK theme"
+    },
+    {
+      "name": "Orchis-theme",
+      "name_to_use": "Orchis-Dark",
+      "url": "https://github.com/vinceliuice/Orchis-theme.git",
+      "cmd_user": "./install.sh -t default -c dark -l --tweaks compact",
+      "cmd_root": "sudo ./install.sh -t default -c dark -l --tweaks compact -d /usr/share/themes",
+      "description": "Modern GTK theme"
+    }
+  ]
+}

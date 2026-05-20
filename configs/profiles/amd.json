@@ -1,0 +1,26 @@
+{
+  "name": "AMD GPU",
+  "description": "Pilotes et outils pour cartes graphiques AMD (RDNA/RDNA2/RDNA3)",
+  "icon": "cpu",
+  "apt": [
+    { "name": "mesa-vulkan-drivers", "description": "Pilotes Vulkan Mesa (RADV)" },
+    { "name": "mesa-vulkan-drivers.i686", "description": "Pilotes Vulkan Mesa 32-bit" },
+    { "name": "mesa-vdpau-drivers", "description": "Decodage video accelere VDPAU" },
+    { "name": "mesa-va-drivers", "description": "Decodage video accelere VA-API" },
+    { "name": "vulkan-loader", "description": "Loader Vulkan" },
+    { "name": "vulkan-loader.i686", "description": "Loader Vulkan 32-bit" },
+    { "name": "vulkan-tools", "description": "Outils Vulkan (vulkaninfo)" },
+    { "name": "mesa-demos", "description": "Utilitaires Mesa (glxinfo, glxgears)" },
+    { "name": "mesa-libEGL.i686", "description": "Mesa EGL 32-bit" },
+    { "name": "mesa-libGL.i686", "description": "Mesa GL 32-bit" },
+    { "name": "libdrm", "description": "Lib DRM" },
+    { "name": "linux-firmware", "description": "Firmware GPU AMD" },
+    { "name": "libva-utils", "description": "Diagnostic acceleration video VA-API" },
+    { "name": "vdpauinfo", "description": "Diagnostic acceleration video VDPAU" },
+    { "name": "radeontop", "description": "Moniteur d'utilisation GPU AMD" },
+    { "name": "corectrl", "description": "Controle GPU/CPU (frequences, ventilateurs)" }
+  ],
+  "flatpak": [],
+  "external": [],
+  "remove": []
+}

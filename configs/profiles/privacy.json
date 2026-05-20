@@ -1,0 +1,13 @@
+{
+  "name": "Vie Privee & Securite",
+  "description": "Pare-feu, antivirus et VPN WireGuard",
+  "icon": "shield",
+  "apt": [
+    { "name": "firewall-config", "description": "Interface graphique pour firewalld" },
+    { "name": "clamtk", "description": "Interface graphique pour l'antivirus ClamAV" },
+    { "name": "wireguard-tools", "description": "Outils CLI VPN WireGuard (wg, wg-quick)" }
+  ],
+  "flatpak": [],
+  "external": [],
+  "remove": []
+}

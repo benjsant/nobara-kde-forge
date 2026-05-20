@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NobaraForgeKDE</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <h1>NobaraForgeKDE</h1>
+                <p>Installation automatisee pour Nobara KDE</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Basculer clair/sombre">
+                    <span id="themeIcon">🌙</span>
+                </button>
+                <button class="btn-small" onclick="quitApp()" title="Quitter NobaraForgeKDE"
+                        style="border-color: var(--danger); color: var(--danger); font-size: 0.85em;">
+                    Quitter
+                </button>
+            </div>
+        </div>
+
+        <div class="status-bar" id="statusBar">
+            <div class="status-item" id="status-internet">
+                <h3>Internet</h3>
+                <div class="value">⏳</div>
+            </div>
+            <div class="status-item" id="status-sudo">
+                <h3>Sudo</h3>
+                <div class="value">⏳</div>
+            </div>
+            <div class="status-item" id="status-python">
+                <h3>Python</h3>
+                <div class="value">⏳</div>
+            </div>
+            <div class="status-item">
+                <h3>DNF</h3>
+                <div class="value" id="count-apt">0</div>
+            </div>
+            <div class="status-item">
+                <h3>Optionnel</h3>
+                <div class="value" id="count-optional">0</div>
+            </div>
+            <div class="status-item">
+                <h3>Flatpaks</h3>
+                <div class="value" id="count-flatpak">0</div>
+            </div>
+            <div class="status-item">
+                <h3>Themes</h3>
+                <div class="value" id="count-themes">0</div>
+            </div>
+            <div class="status-item" id="status-disk">
+                <h3>Disque libre</h3>
+                <div class="value" id="disk-free">--</div>
+            </div>
+        </div>
+
+        <div class="tools-warning" id="toolsWarning" style="display: none;"></div>
+
+        <div class="task-bar" id="taskBar" style="display: none;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                <div class="task-status" id="taskStatus">Pret</div>
+                <button class="btn-small" id="btnCancelTask" onclick="cancelTask()"
+                        style="display:none; border-color: var(--danger); color: var(--danger);">
+                    Annuler
+                </button>
+            </div>
+            <div class="progress-bar" id="progressBar" style="display: none;">
+                <div class="progress-fill" id="progressFill" style="width: 0%">0%</div>
+            </div>
+        </div>
+
+        <div class="profiles-section">
+            <div class="profiles-header">
+                <h2>Profils d'installation</h2>
+                <div class="profiles-actions">
+                    <button class="btn-small" onclick="selectAllProfiles()">Tout cocher</button>
+                    <button class="btn-small" onclick="deselectAllProfiles()">Tout decocher</button>
+                    <button class="btn-small" onclick="dryRunProfiles()">Apercu</button>
+                    <button class="btn-small" onclick="preflightProfiles()" title="Detecte les conflits avant l'installation">Pre-flight</button>
+                    <button class="btn-small" onclick="exportProfiles()">Exporter</button>
+                    <button class="btn-small" onclick="importProfiles()">Importer</button>
+                </div>
+            </div>
+            <div class="profiles-grid" id="profilesGrid">
+                <div style="color: var(--text-muted);">Chargement des profils...</div>
+            </div>
+            <label id="snapshotToggleWrap" style="display: none; align-items: center; gap: 8px; margin-top: 12px; font-size: 0.88em; color: var(--text-muted); cursor: pointer;">
+                <input type="checkbox" id="snapshotToggle" />
+                Snapshot timeshift avant l'installation (recommande pour rollback rapide)
+            </label>
+            <button class="install-profiles-btn" id="btnInstallProfiles" onclick="installProfiles()" disabled>
+                Installer les profils selectionnes (tous les paquets)
+                <span class="btn-sub" id="profilesBtnSub">Aucun profil selectionne</span>
+            </button>
+            <p style="font-size: 0.8em; color: var(--text-muted); margin-top: 8px; text-align: center;">
+                Pour choisir paquet par paquet : cliquer "Detail" sur un profil, cocher/decocher, puis "Installer la selection".
+            </p>
+        </div>
+
+        <!-- Section PC Portable (masquee si desktop) -->
+        <div class="profiles-section laptop-section" id="laptopSection" style="display: none;">
+            <div class="profiles-header">
+                <h2>PC Portable</h2>
+                <div class="profiles-actions">
+                    <button class="btn-small" onclick="laptopCheckAll(true)">Tout cocher</button>
+                    <button class="btn-small" onclick="laptopCheckAll(false)">Tout decocher</button>
+                    <button class="btn-small" onclick="loadLaptopStatus()">Rafraichir</button>
+                </div>
+            </div>
+            <div id="laptopBatteryBar" class="laptop-battery-bar"></div>
+            <div id="laptopChecklist"></div>
+            <button class="install-profiles-btn" onclick="applyLaptopSelection()" style="margin-top: 14px; font-size: 1em; padding: 14px;">
+                Appliquer la selection
+            </button>
+            <div style="display: flex; gap: 8px; margin-top: 14px; align-items: center;">
+                <span style="font-size: 0.95em; color: var(--dark); font-weight: 600;">Diagnostic materiel</span>
+                <button class="btn-small" onclick="laptopChecks(false)" style="border-color: var(--secondary); color: var(--secondary);">
+                    Complet
+                </button>
+                <button class="btn-small" onclick="laptopChecks(true)" style="border-color: var(--text-muted); color: var(--text-muted);">
+                    Live USB
+                </button>
+            </div>
+            <div id="laptopChecksResults" style="display: none; margin-top: 10px;">
+                <div id="checksOutput" class="checks-output"></div>
+            </div>
+        </div>
+
+        <!-- Outils Nobara natifs -->
+        <div class="profiles-section" id="nobaraToolsSection">
+            <div class="profiles-header">
+                <h2>Outils Nobara</h2>
+                <button class="btn-small" onclick="loadNobaraTools()">Rafraichir</button>
+            </div>
+            <p style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 12px;">
+                Outils Nobara natifs deja installes. Ils gerent les drivers, MAJ et tweaks de maniere coherente avec la distribution.
+            </p>
+            <div id="nobaraToolsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px;">
+                <div style="color: var(--text-muted);">Chargement...</div>
+            </div>
+        </div>
+
+        <!-- Paquets optionnels -->
+        <div class="profiles-section" id="optionalSection">
+            <div class="profiles-header">
+                <h2>Paquets optionnels</h2>
+                <div class="profiles-actions">
+                    <button class="btn-small" onclick="loadOptionalPackages()">Rafraichir</button>
+                </div>
+            </div>
+            <p style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 12px;">
+                Paquets pratiques mais non essentiels : imprimantes HP, polices Microsoft, outils divers.
+            </p>
+            <div id="optionalGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin-bottom: 14px;">
+                <div style="color: var(--text-muted);">Chargement...</div>
+            </div>
+            <button class="install-profiles-btn" onclick="installOptional()" style="font-size: 1em; padding: 14px;">
+                Installer tous les paquets optionnels
+            </button>
+        </div>
+
+        <!-- Catalogue de themes -->
+        <div class="profiles-section" id="themeCatalogSection">
+            <div class="profiles-header">
+                <h2>Themes a installer</h2>
+                <div class="profiles-actions">
+                    <button class="btn-small" id="themeTabGtk"    onclick="switchThemeTab('gtk')"    style="border-color: var(--primary);">GTK</button>
+                    <button class="btn-small" id="themeTabIcon"   onclick="switchThemeTab('icon')">Icones</button>
+                    <button class="btn-small" id="themeTabCursor" onclick="switchThemeTab('cursor')">Curseurs</button>
+                    <button class="btn-small" onclick="loadThemeCatalog()">Rafraichir catalogue</button>
+                    <button class="btn-small" onclick="reloadAllThemes()" style="border-color: var(--secondary); color: var(--secondary);">
+                        Recharger tous les themes
+                    </button>
+                </div>
+            </div>
+            <div style="display: flex; gap: 16px; align-items: center; margin: 10px 0; flex-wrap: wrap;">
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.88em; color: var(--text-muted);">
+                    <input type="checkbox" id="themeHideInstalled" onchange="renderThemeTab(_currentThemeTab)">
+                    Masquer les deja installes
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.88em; color: var(--text-muted);" title="Installe dans /usr/share (pour tous les utilisateurs et l'ecran de connexion) — necessite sudo">
+                    <input type="checkbox" id="themeSystemInstall" checked>
+                    Installation systeme (/usr/share) — recommande
+                </label>
+            </div>
+            <div id="themeCatalogGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-top: 4px;">
+                <div style="color: var(--text-muted);">Chargement...</div>
+            </div>
+        </div>
+
+        <div class="dconf-section" id="kdeSection">
+            <h2>Parametres du bureau</h2>
+            <p style="color: var(--text-muted); margin-bottom: 18px;">
+                Configurez l'apparence et les parametres du bureau. Appliques directement via kwriteconfig6.
+            </p>
+            <div class="dconf-grid" id="kdeGrid">
+                <div style="color: var(--text-muted);">Chargement des options...</div>
+            </div>
+            <div id="kdePreviewWrap" style="display: none;">
+                <h3 style="color: var(--dark); margin-bottom: 8px;">Apercu des modifications</h3>
+                <div class="dconf-preview" id="kdePreview"></div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="install-profiles-btn" style="flex: 1;" onclick="applyKde()">
+                    Appliquer la configuration
+                </button>
+                <button class="btn-small" style="padding: 18px; font-size: 1em;" onclick="exportCurrentKde()">
+                    Exporter config KDE actuelle
+                </button>
+            </div>
+        </div>
+
+        <!-- Ecran de connexion (Plasma Login Manager) -->
+        <div class="profiles-section" id="sddmSection">
+            <div class="profiles-header">
+                <h2>Ecran de connexion (Plasma Login)</h2>
+                <button class="btn-small" onclick="loadSddmStatus()">Rafraichir</button>
+            </div>
+            <p style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 8px;">
+                Applique le theme, curseur et numlock a l'ecran de connexion <strong>plasma-login-manager</strong> (DM par defaut de Nobara/Fedora KDE 42+) via la configuration dans <code>/etc/plasmalogin.conf.d/</code>.
+            </p>
+            <div style="font-size: 0.82em; background: #fef3cd; border-left: 3px solid var(--warning); border-radius: 6px; padding: 8px 12px; margin-bottom: 14px; color: #856404;">
+                Les themes doivent etre installes dans <strong>/usr/share/themes</strong> ou <strong>/usr/share/icons</strong>
+                (pas dans ~/.themes) car le display manager tourne en tant qu'utilisateur systeme.
+                Utilisez l'option "Installation systeme" dans le catalogue de themes.
+            </div>
+            <div id="sddmStatus" style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 14px; background: var(--light); border-radius: 8px; padding: 10px;">
+                Chargement...
+            </div>
+            <button class="install-profiles-btn" onclick="sddmSync()" style="font-size: 1em; padding: 14px;">
+                Synchroniser avec le bureau actuel
+            </button>
+        </div>
+
+        <!-- Historique & Rollback -->
+        <div class="history-section" id="historySection">
+            <h2>Historique des actions</h2>
+            <div class="history-summary" id="historySummary" style="display:none;"></div>
+            <div class="history-toolbar">
+                <button class="btn-small" onclick="loadHistory()">Rafraichir</button>
+                <button class="btn-small" onclick="rollbackLast()" style="border-color: var(--warning); color: var(--warning);">Annuler derniere</button>
+                <button class="btn-small" onclick="rollbackAll()" style="border-color: var(--danger); color: var(--danger);">Tout annuler</button>
+                <button class="btn-small" onclick="clearHistory()">Effacer historique</button>
+            </div>
+            <div id="historyContent">
+                <div class="history-empty">Aucune action enregistree</div>
+            </div>
+        </div>
+
+
+        <div class="history-section">
+            <h2>Pare-feu (firewalld)</h2>
+            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 12px;">
+                <span id="firewallStatus" style="font-weight: bold; color: var(--text-muted);">Chargement...</span>
+                <button class="btn-small" onclick="loadFirewall()">Rafraichir</button>
+                <button class="btn-small" id="btnFirewallEnable" onclick="firewallEnable()"
+                        style="border-color: var(--success); color: var(--success);">Activer</button>
+                <button class="btn-small" id="btnFirewallDisable" onclick="firewallDisable()"
+                        style="border-color: var(--danger); color: var(--danger);">Desactiver</button>
+            </div>
+            <pre id="firewallOutput"
+                 style="font-size: 0.78em; color: var(--text-muted); background: var(--light);
+                        padding: 10px; border-radius: 8px; white-space: pre-wrap; display: none;"></pre>
+        </div>
+
+        <div class="logs-section">
+            <h2><span class="sse-indicator disconnected" id="sseIndicator"></span>Logs en temps reel</h2>
+            <div class="logs-toolbar">
+                <button class="btn-small" onclick="clearLogs()">Effacer</button>
+                <button class="btn-small" id="btnAutoScroll" onclick="toggleAutoScroll()">Auto-scroll: ON</button>
+            </div>
+            <div class="logs-container" id="logsContainer">
+                <div class="log-line">Connexion au systeme de logs...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Modal confirm generique -->
+    <div class="modal-overlay" id="confirmOverlay">
+        <div class="confirm-modal">
+            <div class="confirm-title" id="confirmTitle"></div>
+            <p id="confirmMessage"></p>
+            <div class="confirm-actions">
+                <button class="btn-confirm-cancel" onclick="confirmCancel()">Annuler</button>
+                <button class="btn-confirm-ok" id="confirmOk" onclick="confirmOk()">Confirmer</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+        <div class="modal" id="profileModal">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h3 id="modalTitle"></h3>
+            <p class="modal-desc" id="modalDesc"></p>
+            <div id="modalContent"></div>
+            <div id="modalFooter" style="display:none; margin-top: 16px; border-top: 1px solid var(--border); padding-top: 14px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn-small" onclick="checkAllModalPkgs(true)">Tout cocher</button>
+                <button class="btn-small" onclick="checkAllModalPkgs(false)">Tout decocher</button>
+                <button class="install-profiles-btn" id="btnInstallCustom" style="flex: 1; padding: 12px; font-size: 0.95em;" onclick="installCustomFromModal()">
+                    Installer la selection
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

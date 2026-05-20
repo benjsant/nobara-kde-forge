@@ -1,0 +1,21 @@
+{
+  "name": "Developpement",
+  "description": "Outils de compilation, versioning et debugging",
+  "icon": "code",
+  "apt": [
+    { "name": "gcc", "description": "Compilateur C GNU" },
+    { "name": "gcc-c++", "description": "Compilateur C++ GNU" },
+    { "name": "make", "description": "Outil de build GNU Make" },
+    { "name": "cmake", "description": "Systeme de build multi-plateforme" },
+    { "name": "git", "description": "Gestionnaire de versions distribue" },
+    { "name": "gdb", "description": "Debugger GNU pour C/C++" },
+    { "name": "strace", "description": "Traceur d'appels systeme" },
+    { "name": "ltrace", "description": "Traceur d'appels de bibliotheques" },
+    { "name": "meld", "description": "Comparaison visuelle de code et fichiers" },
+    { "name": "lshw", "description": "Inventaire detaille du materiel" },
+    { "name": "inxi", "description": "Informations systeme completes" }
+  ],
+  "flatpak": [],
+  "external": [],
+  "remove": []
+}

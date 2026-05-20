@@ -1,0 +1,35 @@
+[project]
+name = "nobaraforgeKDE"
+version = "0.1.0"
+description = "Post-install automation tool for Nobara KDE"
+requires-python = ">=3.10"
+dependencies = [
+    "flask>=3.0.0",
+    "pydantic>=2.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+# Le projet a un layout "flat" : chaque sous-package est a la racine.
+# On les expose explicitement.
+packages = ["routes", "scripts", "schemas", "utils"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Ajoute la racine du projet au sys.path pour que les tests importent
+# directement routes/, scripts/, utils/, schemas/ sans hack.
+pythonpath = ["."]
+
+[tool.uv]
+# uv cree automatiquement .venv/ a la racine du projet
+# Lancer : uv sync
+# Executer : uv run python nobara_kde_forge.py
+# Tests   : uv run --group dev pytest

@@ -1,0 +1,19 @@
+{
+  "name": "Multimedia",
+  "description": "Lecteurs media, creation video/audio et retouche image",
+  "icon": "film",
+  "apt": [
+    { "name": "mpv", "description": "Lecteur multimedia puissant et leger" },
+    { "name": "celluloid", "description": "Interface GTK moderne pour mpv" },
+    { "name": "yt-dlp", "description": "Telechargeur YouTube et 1000+ plateformes" },
+    { "name": "ffmpegthumbnailer", "description": "Miniatures video dans Dolphin" },
+    { "name": "elisa", "description": "Lecteur musical KDE elegant" },
+    { "name": "pavucontrol", "description": "Controle de volume avance PipeWire/PulseAudio" }
+  ],
+  "flatpak": [
+    { "app": "com.obsproject.Studio", "description": "Enregistrement et streaming video (OBS Studio)" },
+    { "app": "org.gimp.GIMP", "description": "Editeur d'images professionnel GIMP" }
+  ],
+  "external": [],
+  "remove": []
+}
