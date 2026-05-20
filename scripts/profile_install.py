@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 NobaraForgeKDE - Profile Installer
 ------------------------------------
@@ -9,28 +8,37 @@ Supports deduplication when installing multiple profiles in a session.
 
 import sys
 from pathlib import Path
-from typing import Optional, Set
 
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from utils import (
-    check_package_installed, dnf_install, dnf_remove, dnf_update,
-    check_flatpak_installed, flatpak_install,
-    run_command,
-    info, success, warn, error, header,
+    ACTION_DNF_INSTALL,
+    ACTION_DNF_REMOVE,
+    ACTION_EXTERNAL_INSTALL,
+    ACTION_FLATPAK_INSTALL,
+    check_flatpak_installed,
+    check_package_installed,
+    dnf_install,
+    dnf_remove,
+    dnf_update,
+    error,
+    flatpak_install,
     get_state_manager,
-    ACTION_DNF_INSTALL, ACTION_DNF_REMOVE,
-    ACTION_FLATPAK_INSTALL, ACTION_EXTERNAL_INSTALL,
+    header,
+    info,
+    run_command,
+    success,
+    warn,
 )
 from utils.profile_loader import get_profile, load_all_profiles
 
 
 def install_profile(
     slug: str,
-    seen_apt: Optional[Set[str]] = None,
-    seen_flatpak: Optional[Set[str]] = None,
-    seen_external: Optional[Set[str]] = None,
+    seen_apt: set[str] | None = None,
+    seen_flatpak: set[str] | None = None,
+    seen_external: set[str] | None = None,
     dry_run: bool = False,
 ) -> bool:
     """Install all packages from a profile."""
@@ -208,9 +216,9 @@ def main():
     if not dry_run:
         dnf_update()
 
-    seen_apt: Set[str] = set()
-    seen_flatpak: Set[str] = set()
-    seen_external: Set[str] = set()
+    seen_apt: set[str] = set()
+    seen_flatpak: set[str] = set()
+    seen_external: set[str] = set()
     all_ok = True
 
     for slug in slugs:

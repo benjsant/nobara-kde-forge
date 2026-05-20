@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Fonctions de log avec couleurs pour le terminal."""
 
 import logging
-from pathlib import Path
 
 
 class Colors:

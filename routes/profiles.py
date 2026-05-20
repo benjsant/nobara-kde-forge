@@ -4,20 +4,33 @@ import time
 
 from flask import Blueprint, jsonify, request
 
-from utils import (
-    dnf_update, dnf_install, dnf_remove, flatpak_install,
-    check_package_installed, check_flatpak_installed, run_command,
-    get_state_manager,
-    ACTION_DNF_INSTALL, ACTION_DNF_REMOVE,
-    ACTION_FLATPAK_INSTALL, ACTION_EXTERNAL_INSTALL,
-    timeshift_available, timeshift_create_snapshot,
-)
-from utils.profile_loader import load_all_profiles, get_profile
-from scripts.profile_install import install_profile
 from routes.shared import (
-    log_info, log_success, log_warn, log_error,
-    current_task, task_lock, update_task_status
+    current_task,
+    log_error,
+    log_info,
+    log_success,
+    log_warn,
+    task_lock,
+    update_task_status,
 )
+from scripts.profile_install import install_profile
+from utils import (
+    ACTION_DNF_INSTALL,
+    ACTION_DNF_REMOVE,
+    ACTION_EXTERNAL_INSTALL,
+    ACTION_FLATPAK_INSTALL,
+    check_flatpak_installed,
+    check_package_installed,
+    dnf_install,
+    dnf_remove,
+    dnf_update,
+    flatpak_install,
+    get_state_manager,
+    run_command,
+    timeshift_available,
+    timeshift_create_snapshot,
+)
+from utils.profile_loader import get_profile, load_all_profiles
 
 bp = Blueprint("profiles", __name__)
 
@@ -336,7 +349,6 @@ def preflight():
                 to_remove.setdefault(pkg.name, []).append(slug)
 
     # Conflits : un paquet est a la fois dans install et dans remove
-    install_names = set(to_install_apt.keys()) | apt_already
     conflicts = []
     for pkg, removers in to_remove.items():
         if pkg in to_install_apt:

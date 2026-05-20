@@ -1,24 +1,31 @@
 """Routes legacy : status, logs, execute, theme."""
-import os
-import signal
 import json
+import os
 import queue
 import shutil
+import signal
 import socket
 import subprocess
 import threading
 import time
 from pathlib import Path
 
-from flask import Blueprint, jsonify, Response, request
+from flask import Blueprint, Response, jsonify
 
-from utils import system_update, check_command_exists, timeshift_available
-from utils.theme_manager import ThemeManager
 from routes.shared import (
-    log_info, log_success, log_warn, log_error,
-    log_queue, current_task, task_lock,
-    update_task_status, run_script, cancel_current_task
+    cancel_current_task,
+    current_task,
+    log_error,
+    log_info,
+    log_queue,
+    log_success,
+    log_warn,
+    run_script,
+    task_lock,
+    update_task_status,
 )
+from utils import check_command_exists, system_update, timeshift_available
+from utils.theme_manager import ThemeManager
 
 bp = Blueprint("legacy", __name__)
 
@@ -243,7 +250,7 @@ def optional_list():
         config_file = Path("configs/optional_install.json")
         if not config_file.exists():
             return jsonify({"packages": []})
-        with open(config_file, "r", encoding="utf-8") as f:
+        with open(config_file, encoding="utf-8") as f:
             data = json.load(f)
         packages = data.get("packages", [])
         from utils import check_package_installed

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """NobaraForgeKDE - Lanceur principal.
 
 Usage:
@@ -9,13 +8,12 @@ Usage:
   nobara_kde_forge.py --list-profiles
 """
 
-import sys
 import subprocess
+import sys
 import threading
 import time
 import webbrowser
 from pathlib import Path
-
 
 URL = "http://localhost:5000"
 

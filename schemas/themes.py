@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Schemas Pydantic pour les themes GTK/Plasma/icones/curseurs."""
 
-from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class Theme(BaseModel):
@@ -18,9 +17,8 @@ class Theme(BaseModel):
     @field_validator('url')
     @classmethod
     def validate_url(cls, v):
-        if v and not v.isspace():
-            if not (v.startswith('http://') or v.startswith('https://') or v.startswith('git://')):
-                raise ValueError(f"URL invalide : '{v}' (http/https/git attendu)")
+        if v and not v.isspace() and not v.startswith(('http://', 'https://', 'git://')):
+            raise ValueError(f"URL invalide : '{v}' (http/https/git attendu)")
         return v.strip() if v else ""
 
     @model_validator(mode='after')

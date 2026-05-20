@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Suivi persistant des actions NobaraForgeKDE avec rollback."""
 
 import json
 import threading
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
 
@@ -182,10 +181,10 @@ class StateManager:
                     f"Rollback echoue (code {result.returncode}): "
                     f"{' '.join(entry.rollback_cmd)}\n{result.stderr}"
                 )
-        except subprocess.TimeoutExpired:
-            raise StateError(f"Timeout rollback '{entry.target}'")
+        except subprocess.TimeoutExpired as e:
+            raise StateError(f"Timeout rollback '{entry.target}'") from e
         except FileNotFoundError as e:
-            raise StateError(f"Commande rollback introuvable : {e}")
+            raise StateError(f"Commande rollback introuvable : {e}") from e
 
     def _load(self):
         self.state_file.parent.mkdir(parents=True, exist_ok=True)
@@ -197,7 +196,7 @@ class StateManager:
             return
 
         try:
-            with open(self.state_file, "r", encoding="utf-8") as f:
+            with open(self.state_file, encoding="utf-8") as f:
                 data = json.load(f)
             self._entries = [StateEntry.from_dict(e) for e in data.get("entries", [])]
             self._next_id = data.get("next_id", len(self._entries) + 1)

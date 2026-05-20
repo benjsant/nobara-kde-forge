@@ -1,20 +1,15 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Installe les paquets externes (commandes bash custom).
 Attention : les commandes dans external_packages.json sont executees via bash."""
 
-import sys
 import json
+import sys
 from pathlib import Path
 
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from utils import (
-    run_command,
-    info, success, warn, error,
-    get_state_manager, ACTION_EXTERNAL_INSTALL
-)
+from utils import ACTION_EXTERNAL_INSTALL, error, get_state_manager, info, run_command, success, warn
 
 CONFIG_FILE = Path(__file__).parent.parent / "configs/external_packages.json"
 
@@ -51,7 +46,7 @@ def main():
         return
 
     try:
-        with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+        with open(CONFIG_FILE, encoding="utf-8") as f:
             data = json.load(f)
     except json.JSONDecodeError as e:
         error(f"JSON invalide dans {CONFIG_FILE}: {e}")

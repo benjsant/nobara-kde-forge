@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 NobaraForgeKDE - Profile Loader
 -----------------------------
@@ -8,24 +7,22 @@ Load and validate installation profiles from configs/profiles/.
 
 import json
 from pathlib import Path
-from typing import Dict, List, Optional
 
 from schemas.profile import Profile
-
 
 PROFILES_DIR = Path(__file__).parent.parent / "configs" / "profiles"
 
 
 def load_profile(filepath: Path) -> Profile:
     """Load and validate a single profile JSON file."""
-    with open(filepath, "r", encoding="utf-8") as f:
+    with open(filepath, encoding="utf-8") as f:
         data = json.load(f)
     return Profile(**data)
 
 
-def load_all_profiles() -> Dict[str, Profile]:
+def load_all_profiles() -> dict[str, Profile]:
     """Load all profiles from configs/profiles/."""
-    profiles: Dict[str, Profile] = {}
+    profiles: dict[str, Profile] = {}
     if not PROFILES_DIR.is_dir():
         return profiles
 
@@ -40,7 +37,7 @@ def load_all_profiles() -> Dict[str, Profile]:
     return profiles
 
 
-def get_profile(slug: str) -> Optional[Profile]:
+def get_profile(slug: str) -> Profile | None:
     """Load a single profile by slug name."""
     path = PROFILES_DIR / f"{slug}.json"
     if not path.exists():
@@ -48,7 +45,7 @@ def get_profile(slug: str) -> Optional[Profile]:
     return load_profile(path)
 
 
-def list_profile_slugs() -> List[str]:
+def list_profile_slugs() -> list[str]:
     """Return available profile slug names."""
     if not PROFILES_DIR.is_dir():
         return []

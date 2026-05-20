@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=NobaraForgeKDE
+GenericName=Nobara KDE Post-Install Tool
+Comment=Automatisation post-installation pour Nobara KDE (profils, theme, drivers)
+Comment[en]=Post-install automation for Nobara KDE (profiles, theme, drivers)
+Comment[fr]=Automatisation post-installation pour Nobara KDE (profils, theme, drivers)
+Icon=nobara-kde-forge
+Exec=__PROJECT_DIR__/nobaraforgeKDE.sh
+Terminal=true
+Categories=System;Settings;Utility;
+Keywords=Nobara;Post-Install;Setup;Forge;Profile;Theme;
+StartupNotify=true
+StartupWMClass=NobaraForgeKDE

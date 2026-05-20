@@ -11,6 +11,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pytest>=8.0.0",
+    "ruff>=0.8.0",
 ]
 
 [build-system]
@@ -27,6 +28,26 @@ testpaths = ["tests"]
 # Ajoute la racine du projet au sys.path pour que les tests importent
 # directement routes/, scripts/, utils/, schemas/ sans hack.
 pythonpath = ["."]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 110
+extend-exclude = [".venv", "logs", "data", "web/static/js"]
+
+[tool.ruff.lint]
+# Sane defaults : pyflakes + pycodestyle + isort + bugbear + simplify
+select = ["E", "F", "I", "B", "SIM", "UP", "C4"]
+ignore = [
+    "E501",   # line too long — line-length deja fixe a 110, on tolere les commentaires longs
+    "B008",   # function call in default argument — courant dans Flask
+    "SIM108", # ternary force — pas toujours plus lisible
+    "UP006",  # use list[...] instead of List[...] — geres deja py310+
+    "UP036",  # version block — on garde les checks user-facing meme si requires-python les rend defensifs
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["F401", "F811"]   # imports dans fixtures, redefinitions communes en pytest
+"**/__init__.py" = ["F401"]      # les __init__.py re-exportent volontairement
 
 [tool.uv]
 # uv cree automatiquement .venv/ a la racine du projet

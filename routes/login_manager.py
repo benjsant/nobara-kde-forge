@@ -7,10 +7,11 @@ Les URLs gardent le prefixe /api/sddm/* pour compatibilite front.
 """
 import subprocess
 from pathlib import Path
+
 from flask import Blueprint, jsonify
 
-from routes.shared import log_success, log_warn
 from routes.kde_settings import _kde_get
+from routes.shared import log_success, log_warn
 
 bp = Blueprint("login_manager", __name__)
 

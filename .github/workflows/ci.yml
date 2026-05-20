@@ -34,6 +34,9 @@ jobs:
           uv run python -m compileall -q routes scripts utils schemas tests
           uv run python -m py_compile web_app.py nobara_kde_forge.py
 
+      - name: Lint with ruff
+        run: uv run --group dev ruff check .
+
       - name: Run pytest
         run: uv run --group dev pytest tests/ -v
 

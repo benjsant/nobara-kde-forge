@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Gestion des fichiers JSON et operations courantes."""
 
 import json
@@ -19,12 +18,12 @@ def load_json(file_path, required=True):
             raise ConfigError(f"Fichier introuvable : {file_path}")
         return {}
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding='utf-8') as f:
             return json.load(f)
     except json.JSONDecodeError as e:
-        raise ConfigError(f"JSON invalide dans {file_path}: {e}")
+        raise ConfigError(f"JSON invalide dans {file_path}: {e}") from e
     except Exception as e:
-        raise ConfigError(f"Erreur lecture {file_path}: {e}")
+        raise ConfigError(f"Erreur lecture {file_path}: {e}") from e
 
 
 def save_json(data, file_path, indent=2):
@@ -39,9 +38,11 @@ def load_package_list(config_file, validate=True):
     if validate:
         try:
             from .validation import (
-                validate_install_config, validate_remove_config,
-                validate_flatpak_config, validate_external_config,
-                validate_theme_config
+                validate_external_config,
+                validate_flatpak_config,
+                validate_install_config,
+                validate_remove_config,
+                validate_theme_config,
             )
 
             filename = config_file.name.lower()

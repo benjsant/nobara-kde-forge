@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 NobaraForgeKDE - Profile Schemas
 ------------------------------
 Pydantic models for combined installation profiles (configs/profiles/*.json).
 """
 
-from typing import List, Literal
-from pydantic import BaseModel, Field, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class ProfileAptPackage(BaseModel):
@@ -77,10 +75,10 @@ class Profile(BaseModel):
     name: str = Field(..., min_length=1, description="Profile display name")
     description: str = Field(default="", description="Profile description")
     icon: str = Field(default="box", description="Icon identifier for the UI")
-    apt: List[ProfileAptPackage] = Field(default_factory=list)
-    flatpak: List[ProfileFlatpak] = Field(default_factory=list)
-    external: List[ProfileExternal] = Field(default_factory=list)
-    remove: List[ProfileRemove] = Field(default_factory=list)
+    apt: list[ProfileAptPackage] = Field(default_factory=list)
+    flatpak: list[ProfileFlatpak] = Field(default_factory=list)
+    external: list[ProfileExternal] = Field(default_factory=list)
+    remove: list[ProfileRemove] = Field(default_factory=list)
 
     @field_validator('icon')
     @classmethod

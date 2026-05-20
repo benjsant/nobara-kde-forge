@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Installe les paquets optionnels (configs/optional_install.json)."""
 
 import sys
@@ -9,10 +8,15 @@ if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from utils import (
-    check_package_installed, dnf_install,
-    info, success, warn, error,
+    ACTION_DNF_INSTALL,
+    check_package_installed,
+    dnf_install,
+    error,
+    get_state_manager,
+    info,
     load_package_list,
-    get_state_manager, ACTION_DNF_INSTALL
+    success,
+    warn,
 )
 
 CONFIG_FILE = Path(__file__).parent.parent / "configs/optional_install.json"

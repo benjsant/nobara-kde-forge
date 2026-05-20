@@ -33,7 +33,25 @@ Les scripts dans `scripts/` sont invoqués depuis Flask via `python -m scripts.<
 
 ### CI
 
-GitHub Actions ([.github/workflows/ci.yml](.github/workflows/ci.yml)) : matrix Python 3.10-3.13, `uv sync --group dev`, `compileall`, pytest, `bash -n` sur le launcher, validation JSON.
+GitHub Actions ([.github/workflows/ci.yml](.github/workflows/ci.yml)) : matrix Python 3.10-3.13, `uv sync --group dev`, `compileall`, **ruff check**, pytest, `bash -n` sur le launcher, validation JSON.
+
+### Pre-commit
+
+```bash
+uv tool install pre-commit
+pre-commit install
+```
+
+Hooks configurés ([.pre-commit-config.yaml](.pre-commit-config.yaml)) : trailing whitespace, EOF fixer, check-yaml/json, check-merge-conflict, ruff (lint + autofix), bashate, validation Pydantic des profils. `ruff-format` est commenté par défaut (génère beaucoup de diff cosmétique).
+
+### Raccourci KDE
+
+```bash
+./packaging/install-desktop.sh                # Installe nobara-kde-forge.desktop dans ~/.local/share/applications/
+./packaging/install-desktop.sh --uninstall    # Retire le raccourci
+```
+
+L'app apparaît ensuite dans le menu Plasma sous le nom "NobaraForgeKDE".
 
 ## Architecture
 

@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Schemas Pydantic pour les paquets RPM/DNF."""
 
-from pydantic import BaseModel, Field, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class Package(BaseModel):

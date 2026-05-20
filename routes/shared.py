@@ -1,10 +1,11 @@
 """Etat partage entre les blueprints : task, logs, helpers."""
-import os
-import sys
-import queue
-import threading
+import contextlib
 import logging
+import os
+import queue
 import subprocess
+import sys
+import threading
 from pathlib import Path
 
 log_queue = queue.Queue(maxsize=1000)
@@ -33,10 +34,8 @@ SCRIPT_TIMEOUT = _resolve_script_timeout()
 
 class QueueHandler(logging.Handler):
     def emit(self, record):
-        try:
+        with contextlib.suppress(queue.Full):
             log_queue.put_nowait(self.format(record))
-        except queue.Full:
-            pass
 
 
 logging.basicConfig(
@@ -54,13 +53,11 @@ def log_error(msg):   logger.error(f"[ERROR] {msg}")
 
 
 def notify_desktop(title, message=""):
-    try:
+    with contextlib.suppress(Exception):
         subprocess.run(
             ["notify-send", "-a", "NobaraForgeKDE", "-i", "dialog-information", title, message],
             capture_output=True, timeout=3
         )
-    except Exception:
-        pass
 
 
 def update_task_status(name, running, progress=0):

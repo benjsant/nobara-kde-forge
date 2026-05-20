@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 NobaraForgeKDE - Theme Installer
 ----------------------------------------------
@@ -8,18 +7,22 @@ Installs GTK, Plasma, Icon, and Cursor themes and applies them via KDE tools.
 Updates plasma-login-manager configuration if active.
 """
 
-import os
 import json
-import shutil
+import os
+import sys
 from pathlib import Path
 
-import sys
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from utils import (
-    info, success, warn, error,
-    run_command, run_sudo_command, git_clone,
+    error,
+    git_clone,
+    info,
+    run_command,
+    run_sudo_command,
+    success,
+    warn,
 )
 
 # ---------------------------------------------------------------------
@@ -49,7 +52,7 @@ if not USER_NAME:
 def load_theme_json(file_path: Path):
     """Load themes from a JSON config file. Returns empty list on error."""
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             return json.load(f)["themes"]
     except Exception as e:
         error(f"Failed to load {file_path}: {e}")

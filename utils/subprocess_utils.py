@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Wrappers subprocess securises (pas de shell=True)."""
 
-import sys
 import subprocess
-from pathlib import Path
+import sys
 
 
 class CommandResult:

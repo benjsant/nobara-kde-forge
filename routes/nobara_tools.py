@@ -7,9 +7,10 @@ l'utilisateur (pas en root) car Flask tourne en mode utilisateur.
 import os
 import shutil
 import subprocess
+
 from flask import Blueprint, jsonify
 
-from routes.shared import log_info, log_warn, log_error
+from routes.shared import log_error, log_info, log_warn
 
 bp = Blueprint("nobara_tools", __name__)
 

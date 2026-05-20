@@ -1,5 +1,6 @@
 """Routes /api/system - gestion systeme directe (pare-feu firewalld, etc.)."""
 import subprocess
+
 from flask import Blueprint, jsonify
 
 bp = Blueprint("system", __name__)

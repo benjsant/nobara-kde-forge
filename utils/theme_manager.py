@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Gestion des themes : detection, installation git, application KDE Plasma."""
 
 import json
-import subprocess
 import tempfile
 from pathlib import Path
 
-from .subprocess_utils import run_command, git_clone
+from .subprocess_utils import git_clone, run_command
 
 
 class ThemeManager:
@@ -46,9 +44,8 @@ class ThemeManager:
 
         for base_path in search_paths:
             theme_path = base_path / theme_name
-            if theme_path.exists() and theme_path.is_dir():
-                if any(theme_path.iterdir()):
-                    return True, theme_path
+            if theme_path.exists() and theme_path.is_dir() and any(theme_path.iterdir()):
+                return True, theme_path
 
         return False, None
 
@@ -65,26 +62,25 @@ class ThemeManager:
         else:
             search_paths = self.icon_theme_paths
 
+        # Marqueurs : fichier present dans le dossier => c'est un theme du type donne
+        markers = {
+            "gtk":    ["gtk-3.0"],
+            "icon":   ["index.theme"],
+            "cursor": ["cursors"],
+            "plasma": ["metadata.desktop", "metadata.json"],
+        }
         for base_path in search_paths:
             if not base_path.exists():
                 continue
-
             for theme_dir in base_path.iterdir():
-                if theme_dir.is_dir() and not theme_dir.name.startswith('.'):
-                    if theme_type == "gtk" and (theme_dir / "gtk-3.0").exists():
-                        themes.add(theme_dir.name)
-                    elif theme_type == "icon" and (theme_dir / "index.theme").exists():
-                        themes.add(theme_dir.name)
-                    elif theme_type == "cursor" and (theme_dir / "cursors").exists():
-                        themes.add(theme_dir.name)
-                    elif theme_type == "plasma" and (theme_dir / "metadata.desktop").exists():
-                        themes.add(theme_dir.name)
-                    elif theme_type == "plasma" and (theme_dir / "metadata.json").exists():
-                        themes.add(theme_dir.name)
-                    elif theme_type == "kvantum":
-                        themes.add(theme_dir.name)
+                if not theme_dir.is_dir() or theme_dir.name.startswith('.'):
+                    continue
+                if theme_type == "kvantum" or any(
+                    (theme_dir / m).exists() for m in markers.get(theme_type, [])
+                ):
+                    themes.add(theme_dir.name)
 
-        return sorted(list(themes))
+        return sorted(themes)
 
     def install_theme_from_git(self, theme_name, git_url, install_cmd, theme_type="gtk"):
         """Clone et installe un theme depuis git. Retourne (success, message)."""
@@ -115,7 +111,7 @@ class ThemeManager:
                 if is_installed:
                     return True, f"Theme {theme_name} installe : {theme_path}"
                 else:
-                    return False, f"Installation terminee mais theme non trouve"
+                    return False, "Installation terminee mais theme non trouve"
 
             except Exception as e:
                 return False, f"Erreur : {str(e)}"
@@ -152,7 +148,7 @@ class ThemeManager:
 
     def check_recommended_config(self, config_file):
         """Charge et verifie l'etat de la config recommandee."""
-        with open(config_file, 'r', encoding='utf-8') as f:
+        with open(config_file, encoding='utf-8') as f:
             config = json.load(f)
 
         result = {
@@ -178,7 +174,7 @@ class ThemeManager:
         """Applique la config recommandee. Retourne (success, messages)."""
         messages = []
 
-        with open(config_file, 'r', encoding='utf-8') as f:
+        with open(config_file, encoding='utf-8') as f:
             config = json.load(f)
 
         messages.append(f"Configuration : {config['name']}")

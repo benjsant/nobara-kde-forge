@@ -1,10 +1,19 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """NobaraForgeKDE - Interface web Flask."""
 
 from flask import Flask, render_template
 
-from routes import legacy, profiles, kde_settings, state_routes, system, themes, login_manager, laptop, nobara_tools
+from routes import (
+    kde_settings,
+    laptop,
+    legacy,
+    login_manager,
+    nobara_tools,
+    profiles,
+    state_routes,
+    system,
+    themes,
+)
 from routes.shared import log_info
 
 app = Flask(__name__,

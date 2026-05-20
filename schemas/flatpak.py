@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Schemas Pydantic pour les Flatpaks."""
 
 from typing import Literal
-from pydantic import BaseModel, Field, ConfigDict, field_validator
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class FlatpakApp(BaseModel):

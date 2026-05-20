@@ -3,11 +3,8 @@ import threading
 
 from flask import Blueprint, jsonify
 
-from utils.state_manager import get_state_manager, StateError
-from routes.shared import (
-    log_success, log_warn, log_error,
-    current_task, task_lock, update_task_status
-)
+from routes.shared import current_task, log_error, log_success, log_warn, task_lock, update_task_status
+from utils.state_manager import StateError, get_state_manager
 
 bp = Blueprint("state", __name__)
 

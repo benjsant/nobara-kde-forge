@@ -1,18 +1,22 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Installe les Flatpaks definis dans configs/flatpak.json."""
 
-import sys
 import json
+import sys
 from pathlib import Path
 
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from utils import (
-    check_flatpak_installed, flatpak_install,
-    info, success, warn, error,
-    get_state_manager, ACTION_FLATPAK_INSTALL
+    ACTION_FLATPAK_INSTALL,
+    check_flatpak_installed,
+    error,
+    flatpak_install,
+    get_state_manager,
+    info,
+    success,
+    warn,
 )
 
 CONFIG_FILE = Path(__file__).parent.parent / "configs/flatpak.json"
@@ -61,7 +65,7 @@ def main():
         return
 
     try:
-        with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+        with open(CONFIG_FILE, encoding="utf-8") as f:
             data = json.load(f)
     except json.JSONDecodeError as e:
         error(f"JSON invalide dans {CONFIG_FILE}: {e}")

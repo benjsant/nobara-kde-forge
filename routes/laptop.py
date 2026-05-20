@@ -6,11 +6,13 @@ from pathlib import Path
 
 from flask import Blueprint, jsonify, request
 
-from utils.laptop_detect import is_laptop
 from routes.shared import (
-    log_info, log_success, log_warn, log_error,
-    current_task, task_lock, update_task_status
+    current_task,
+    log_error,
+    task_lock,
+    update_task_status,
 )
+from utils.laptop_detect import is_laptop
 
 bp = Blueprint("laptop", __name__)
 
@@ -124,7 +126,9 @@ def apply_selection():
         return jsonify(success=False, error="Rien a appliquer"), 400
 
     from scripts.laptop_setup import (
-        install_tlp, install_monitoring_selective, configure_dock_selective,
+        configure_dock_selective,
+        install_monitoring_selective,
+        install_tlp,
         install_vendor_packages,
     )
 

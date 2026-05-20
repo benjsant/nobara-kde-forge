@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """Validation des fichiers JSON de config avec Pydantic."""
 
 import json
 from pathlib import Path
+
 from pydantic import ValidationError
 
 from schemas import (
-    Package, PackageList,
-    FlatpakApp, FlatpakList,
-    ExternalPackage, ExternalPackageList,
-    Theme, ThemeList
+    ExternalPackageList,
+    FlatpakList,
+    PackageList,
+    ThemeList,
 )
 
 
@@ -23,7 +23,7 @@ class ConfigValidationError(Exception):
 
         error_msgs = []
         for err in errors:
-            loc = " -> ".join(str(l) for l in err.get("loc", []))
+            loc = " -> ".join(str(part) for part in err.get("loc", []))
             msg = err.get("msg", "Erreur inconnue")
             error_msgs.append(f"  - {loc}: {msg}")
 
@@ -42,16 +42,16 @@ def validate_config(config_path, model_class):
         raise FileNotFoundError(f"Fichier introuvable : {config_path}")
 
     try:
-        with open(config_path, 'r', encoding='utf-8') as f:
+        with open(config_path, encoding='utf-8') as f:
             data = json.load(f)
         return model_class.model_validate(data)
     except ValidationError as e:
-        raise ConfigValidationError(str(config_path), e.errors())
+        raise ConfigValidationError(str(config_path), e.errors()) from e
     except json.JSONDecodeError as e:
         raise ConfigValidationError(str(config_path), [{
             "loc": ["json"],
             "msg": f"JSON invalide : {e.msg} ligne {e.lineno}, colonne {e.colno}"
-        }])
+        }]) from e
 
 
 def validate_install_config(path):

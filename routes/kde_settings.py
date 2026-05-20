@@ -2,13 +2,19 @@
 import os
 import subprocess
 import threading
+
 from flask import Blueprint, jsonify, request
 
-from utils.theme_manager import ThemeManager
 from routes.shared import (
-    log_info, log_success, log_warn, log_error,
-    current_task, task_lock, update_task_status
+    current_task,
+    log_error,
+    log_info,
+    log_success,
+    log_warn,
+    task_lock,
+    update_task_status,
 )
+from utils.theme_manager import ThemeManager
 
 bp = Blueprint("kde_settings", __name__)
 
