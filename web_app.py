@@ -17,7 +17,7 @@ from routes import (
     themes,
 )
 from routes.shared import log_info, log_warn
-from utils.lockfile import LockfileError, acquire
+from utils.lockfile import LockfileError, acquire, install_signal_handlers
 from utils.security import register_security
 
 PORT = 5000
@@ -56,6 +56,10 @@ def main():
         print("        Si vous etes sur que l'autre instance est morte : "
               "supprimez le lock manuellement, puis relancez.", file=sys.stderr)
         sys.exit(2)
+
+    # Nettoyage du lock sur SIGTERM/SIGINT (atexit seul ne couvre pas les
+    # signaux ; le bouton 'Quitter' de l'UI envoie SIGTERM).
+    install_signal_handlers()
 
     log_info(f"NobaraForgeKDE demarre sur http://localhost:{PORT}")
     app.run(host='127.0.0.1', port=PORT, debug=False, threaded=True)

@@ -180,3 +180,40 @@ def test_lockfile_release_only_if_ours(tmp_path, monkeypatch):
     # Le fichier doit toujours exister (on n'est pas proprietaire)
     assert lock.exists()
     assert lock.read_text().strip() == str(foreign_pid)
+
+
+def test_lockfile_signal_handler_releases_lock(tmp_path, monkeypatch):
+    """install_signal_handlers : recevoir SIGTERM doit retirer le lock.
+
+    On verifie le comportement dans un process enfant pour ne pas tuer
+    le runner pytest."""
+    import subprocess
+    import sys
+    import textwrap
+
+    monkeypatch.setenv("XDG_RUNTIME_DIR", str(tmp_path))
+    lock = tmp_path / "nobaraforgekde.lock"
+
+    # Process enfant : acquiert le lock, installe les handlers, attend SIGTERM
+    child_code = textwrap.dedent(f"""
+        import os, sys, time, signal
+        sys.path.insert(0, {str(ROOT)!r})
+        os.environ["XDG_RUNTIME_DIR"] = {str(tmp_path)!r}
+        from utils import lockfile
+        lockfile.acquire()
+        lockfile.install_signal_handlers()
+        print("ready", flush=True)
+        time.sleep(30)
+    """)
+    proc = subprocess.Popen(
+        [sys.executable, "-c", child_code],
+        stdout=subprocess.PIPE, text=True,
+    )
+    # Attend que l'enfant signale qu'il est pret
+    assert proc.stdout.readline().strip() == "ready"
+    assert lock.exists(), "le lock doit exister tant que l'enfant tourne"
+
+    proc.terminate()  # SIGTERM
+    proc.wait(timeout=5)
+
+    assert not lock.exists(), "le lock doit etre retire apres SIGTERM"
