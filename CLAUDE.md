@@ -107,7 +107,8 @@ nobara_kde_forge/
 │   ├── theme_manager.py     # ThemeManager avec chemins KDE Plasma + Kvantum
 │   ├── security.py          # Anti-CSRF / anti-DNS-rebinding middleware Flask
 │   ├── sandbox.py           # bwrap wrapper + detection patterns dangereux
-│   └── lockfile.py          # Lock file global (PID file + signal handlers)
+│   ├── lockfile.py          # Lock file global (PID file + signal handlers)
+│   └── power.py             # Detection batterie (sysfs) -> warning UI
 │
 ├── schemas/                 # Modèles Pydantic (distro-agnostic)
 │   ├── __init__.py
@@ -165,7 +166,7 @@ nobara_kde_forge/
 - `system_update()` ([utils/subprocess_utils.py](utils/subprocess_utils.py)) utilise `nobara-updater cli` si disponible (préserve les quirks de version Nobara) avec fallback `dnf check-update` + `dnf upgrade`
 - Le sudoers temporaire `/etc/sudoers.d/nobaraforgekde` (NOPASSWD pour `firewall-cmd`) est créé au lancement et **supprimé à la fermeture** via le `trap cleanup EXIT` du launcher bash. `./nobaraforgeKDE.sh --uninstall` permet de nettoyer manuellement tout fichier système restant
 - Snapshot timeshift optionnel avant `/api/profiles/install` : checkbox UI dans la section profils, visible uniquement si timeshift est dispo (`data.checks.timeshift`)
-- **Fonctionnalité laptop archivée** : la gestion PC portable (TLP, monitoring, mode dock, thermique, asusctl) est isolée dans la branche [`archive/laptop`](https://github.com/benjsant/nobara-kde-forge/tree/archive/laptop). Récupérable via `git checkout archive/laptop`. Une approche différente sera développée dans un futur commit séparé.
+- **Fonctionnalité laptop archivée** : la gestion PC portable (TLP, monitoring, mode dock, thermique, asusctl) est isolée dans la branche [`archive/laptop`](https://github.com/benjsant/nobara-kde-forge/tree/archive/laptop). La forge reste un simple utilitaire d'installation de paquets. Seul ajout côté laptop : avertissement batterie ([utils/power.py](utils/power.py)) — l'UI affiche une bannière "branchez le secteur" si l'utilisateur est sur batterie au moment de lancer une install. Détection via `/sys/class/power_supply/`, retourne `null` pour les desktops (indicateur caché).
 
 ## Commandes utiles
 

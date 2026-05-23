@@ -25,6 +25,7 @@ from routes.shared import (
     update_task_status,
 )
 from utils import check_command_exists, system_update, timeshift_available
+from utils.power import get_power_state
 from utils.theme_manager import ThemeManager
 
 bp = Blueprint("legacy", __name__)
@@ -58,6 +59,8 @@ def _check_system():
     }
     checks["disk_free_gb"] = round(shutil.disk_usage("/").free / (1024 ** 3), 1)
     checks["timeshift"] = timeshift_available()
+    # `power` est None sur un desktop sans batterie (UI cache l'indicateur).
+    checks["power"] = get_power_state()
     return checks
 
 

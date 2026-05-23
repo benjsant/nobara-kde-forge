@@ -103,6 +103,7 @@ NobaraForgeKDE expose les outils Nobara existants dans son UI plutôt que de les
 - **Catalogue de thèmes** installables depuis git (Orchis, Tela, Bibata-Modern…)
 - **Plasma Login Manager** (DM par défaut Nobara/Fedora KDE 42+) : synchro thème/curseur/numlock
 - **Firewall** : statut + activation/désactivation firewalld
+- **Avertissement batterie** sur laptop : bannière warning si vous lancez une install sur batterie (risque de coupure mid-install)
 - **Logs SSE temps réel** + historique persistant
 - **Mode sombre/clair** persistant dans l'UI
 

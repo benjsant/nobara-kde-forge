@@ -104,6 +104,8 @@
                     // Toggle snapshot timeshift checkbox uniquement si dispo
                     const snapWrap = document.getElementById('snapshotToggleWrap');
                     if (snapWrap) snapWrap.style.display = data.checks.timeshift ? 'inline-flex' : 'none';
+                    // Alimentation : visible uniquement sur laptop (power != null)
+                    updatePowerStatus(data.checks.power);
                     updateTaskStatus(data.task);
                 })
                 .catch(err => console.error('Status error:', err));
@@ -114,6 +116,33 @@
             elem.classList.toggle('ok', isOk);
             elem.classList.toggle('error', !isOk);
             elem.querySelector('.value').textContent = isOk ? '✅' : '❌';
+        }
+
+        function updatePowerStatus(power) {
+            // power = null sur desktop (pas de batterie) -> cache l'indicateur et la banniere
+            const item = document.getElementById('status-power');
+            const value = document.getElementById('power-value');
+            const banner = document.getElementById('batteryWarning');
+            if (!power) {
+                item.style.display = 'none';
+                banner.style.display = 'none';
+                return;
+            }
+            item.style.display = '';
+            if (power.on_battery) {
+                value.textContent = '🔋 ' + (power.capacity != null ? power.capacity + '%' : '');
+                item.classList.add('error');
+                item.classList.remove('ok');
+                banner.textContent = '⚠ Vous etes sur batterie' +
+                    (power.capacity != null ? ' (' + power.capacity + '%)' : '') +
+                    '. Branchez le secteur avant une installation importante pour eviter une coupure en cours de route.';
+                banner.style.display = '';
+            } else {
+                value.textContent = '⚡ Secteur';
+                item.classList.add('ok');
+                item.classList.remove('error');
+                banner.style.display = 'none';
+            }
         }
 
         function updateTaskStatus(task) {
