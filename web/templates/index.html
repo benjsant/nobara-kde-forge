@@ -103,35 +103,6 @@
             </p>
         </div>
 
-        <!-- Section PC Portable (masquee si desktop) -->
-        <div class="profiles-section laptop-section" id="laptopSection" style="display: none;">
-            <div class="profiles-header">
-                <h2>PC Portable</h2>
-                <div class="profiles-actions">
-                    <button class="btn-small" onclick="laptopCheckAll(true)">Tout cocher</button>
-                    <button class="btn-small" onclick="laptopCheckAll(false)">Tout decocher</button>
-                    <button class="btn-small" onclick="loadLaptopStatus()">Rafraichir</button>
-                </div>
-            </div>
-            <div id="laptopBatteryBar" class="laptop-battery-bar"></div>
-            <div id="laptopChecklist"></div>
-            <button class="install-profiles-btn" onclick="applyLaptopSelection()" style="margin-top: 14px; font-size: 1em; padding: 14px;">
-                Appliquer la selection
-            </button>
-            <div style="display: flex; gap: 8px; margin-top: 14px; align-items: center;">
-                <span style="font-size: 0.95em; color: var(--dark); font-weight: 600;">Diagnostic materiel</span>
-                <button class="btn-small" onclick="laptopChecks(false)" style="border-color: var(--secondary); color: var(--secondary);">
-                    Complet
-                </button>
-                <button class="btn-small" onclick="laptopChecks(true)" style="border-color: var(--text-muted); color: var(--text-muted);">
-                    Live USB
-                </button>
-            </div>
-            <div id="laptopChecksResults" style="display: none; margin-top: 10px;">
-                <div id="checksOutput" class="checks-output"></div>
-            </div>
-        </div>
-
         <!-- Outils Nobara natifs -->
         <div class="profiles-section" id="nobaraToolsSection">
             <div class="profiles-header">

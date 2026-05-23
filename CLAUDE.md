@@ -85,8 +85,7 @@ nobara_kde_forge/
 │   ├── system.py            # /api/system/* — firewalld (remplace ufw)
 │   ├── themes.py            # /api/themes/*
 │   ├── state_routes.py      # /api/state/* — rollback
-│   ├── nobara_tools.py      # /api/nobara/* — detection + launch des outils Nobara natifs (welcome, driver-manager, etc.)
-│   └── laptop.py            # /api/laptop/*
+│   └── nobara_tools.py      # /api/nobara/* — detection + launch des outils Nobara natifs (welcome, driver-manager, etc.)
 │
 ├── scripts/                 # Logique d'installation (appelés par les routes)
 │   ├── __init__.py
@@ -96,8 +95,7 @@ nobara_kde_forge/
 │   ├── external_install.py
 │   ├── optional_install.py
 │   ├── profile_install.py
-│   ├── themes_install.py
-│   └── laptop_setup.py
+│   └── themes_install.py
 │
 ├── utils/                   # Utilitaires
 │   ├── subprocess_utils.py  # run_command, dnf_install/remove/update/upgrade, rpm -q
@@ -107,7 +105,9 @@ nobara_kde_forge/
 │   ├── validation.py        # Validation Pydantic des configs
 │   ├── profile_loader.py    # Charge les profils depuis configs/profiles/
 │   ├── theme_manager.py     # ThemeManager avec chemins KDE Plasma + Kvantum
-│   └── laptop_detect.py     # Détection laptop via DMI/battery
+│   ├── security.py          # Anti-CSRF / anti-DNS-rebinding middleware Flask
+│   ├── sandbox.py           # bwrap wrapper + detection patterns dangereux
+│   └── lockfile.py          # Lock file global (PID file + signal handlers)
 │
 ├── schemas/                 # Modèles Pydantic (distro-agnostic)
 │   ├── __init__.py
@@ -121,7 +121,6 @@ nobara_kde_forge/
 │   ├── optional_install.json
 │   ├── themes_gtk.json, themes_icons.json, themes_cursors.json
 │   ├── theme_config_recommended.json  # Config thème par défaut (Breeze Dark)
-│   ├── laptop.json
 │   └── profiles/            # Profils d'installation (base, gaming, dev, etc.)
 │       ├── base.json, gaming.json, dev.json, multimedia.json, office.json
 │       ├── docker.json, distrobox.json, browsers.json, privacy.json
@@ -166,7 +165,7 @@ nobara_kde_forge/
 - `system_update()` ([utils/subprocess_utils.py](utils/subprocess_utils.py)) utilise `nobara-updater cli` si disponible (préserve les quirks de version Nobara) avec fallback `dnf check-update` + `dnf upgrade`
 - Le sudoers temporaire `/etc/sudoers.d/nobaraforgekde` (NOPASSWD pour `firewall-cmd`) est créé au lancement et **supprimé à la fermeture** via le `trap cleanup EXIT` du launcher bash. `./nobaraforgeKDE.sh --uninstall` permet de nettoyer manuellement tout fichier système restant
 - Snapshot timeshift optionnel avant `/api/profiles/install` : checkbox UI dans la section profils, visible uniquement si timeshift est dispo (`data.checks.timeshift`)
-- Détection vendor laptop via DMI (`sys_vendor`/`product_name`) → `vendor_id` normalisé (`asus`, `lenovo`, `dell`, `hp`, `msi`, `framework`, `acer`, `razer`, `other`). Section `vendor_specific.<id>.packages` dans [configs/laptop.json](configs/laptop.json) — actuellement asusctl/supergfxctl/rog-control-center pour ASUS
+- **Fonctionnalité laptop archivée** : la gestion PC portable (TLP, monitoring, mode dock, thermique, asusctl) est isolée dans la branche [`archive/laptop`](https://github.com/benjsant/nobara-kde-forge/tree/archive/laptop). Récupérable via `git checkout archive/laptop`. Une approche différente sera développée dans un futur commit séparé.
 
 ## Commandes utiles
 

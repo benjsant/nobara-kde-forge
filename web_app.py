@@ -7,7 +7,6 @@ from flask import Flask, render_template
 
 from routes import (
     kde_settings,
-    laptop,
     legacy,
     login_manager,
     nobara_tools,
@@ -38,7 +37,6 @@ app.register_blueprint(state_routes.bp)
 app.register_blueprint(system.bp)
 app.register_blueprint(themes.bp)
 app.register_blueprint(login_manager.bp)
-app.register_blueprint(laptop.bp)
 app.register_blueprint(nobara_tools.bp)
 
 

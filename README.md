@@ -103,7 +103,6 @@ NobaraForgeKDE expose les outils Nobara existants dans son UI plutôt que de les
 - **Catalogue de thèmes** installables depuis git (Orchis, Tela, Bibata-Modern…)
 - **Plasma Login Manager** (DM par défaut Nobara/Fedora KDE 42+) : synchro thème/curseur/numlock
 - **Firewall** : statut + activation/désactivation firewalld
-- **Section laptop** (auto-détectée via batterie + DMI) : TLP, monitoring, mode dock, thermique, paquets vendor-specific (asusctl pour ASUS, etc.)
 - **Logs SSE temps réel** + historique persistant
 - **Mode sombre/clair** persistant dans l'UI
 
@@ -132,10 +131,10 @@ nobara_kde_forge.py          # Point d'entree Python (UI ou CLI)
 nobaraforgeKDE.sh            # Launcher bash : uv sync, sudo, inhibe veille, lance Flask
 web_app.py                   # Application Flask + blueprints
 routes/                      # Endpoints API : profiles, kde, login_manager, nobara_tools, etc.
-scripts/                     # Logique d'installation (DNF, Flatpak, profils, thèmes, laptop)
-utils/                       # subprocess, state_manager, theme_manager, validation
+scripts/                     # Logique d'installation (DNF, Flatpak, profils, thèmes)
+utils/                       # subprocess, state, theme_manager, validation, security, sandbox, lockfile
 schemas/                     # Modèles Pydantic strict
-configs/                     # JSON : profils, paquets, thèmes, laptop
+configs/                     # JSON : profils, paquets, thèmes
 web/                         # Frontend (HTML + Vanilla JS + CSS)
 tests/                       # pytest (39 tests)
 ```

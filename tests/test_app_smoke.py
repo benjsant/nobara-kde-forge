@@ -50,7 +50,6 @@ def test_app_imports():
     "/api/state",
     "/api/system/firewall",
     "/api/sddm/status",
-    "/api/laptop/detect",
     "/api/nobara/tools",
 ])
 def test_url_rule_registered(rule):

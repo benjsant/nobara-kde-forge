@@ -479,47 +479,7 @@ body {
     margin-right: 8px; vertical-align: middle;
 }
 
-/* ─── Laptop section ─── */
-.laptop-section { border-left: 4px solid var(--secondary); }
-.laptop-group {
-    background: var(--light); border-radius: 10px;
-    padding: 14px 16px; margin-bottom: 12px;
-}
-.laptop-group-title {
-    font-weight: bold; font-size: 0.95em; color: var(--secondary);
-    margin-bottom: 10px; padding-bottom: 6px;
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center;
-}
-.laptop-check-item {
-    display: flex; align-items: flex-start; gap: 10px;
-    padding: 7px 0; cursor: pointer; font-size: 0.9em;
-}
-.laptop-check-item input[type="checkbox"] {
-    width: 16px; height: 16px; margin-top: 2px; flex-shrink: 0; cursor: pointer;
-}
-.laptop-check-item .pkg-name { font-weight: 600; color: var(--dark); display: flex; align-items: center; }
-.laptop-check-item .pkg-desc { font-size: 0.82em; color: var(--text-muted); display: block; }
-
-.checks-output {
-    background: #0f172a; color: #e2e8f0; padding: 14px;
-    border-radius: 10px; max-height: 400px; overflow-y: auto;
-    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-    font-size: 0.82em;
-}
-.check-item { margin-bottom: 10px; }
-.check-name {
-    font-weight: 600; color: #93c5fd; margin-bottom: 2px;
-    display: flex; align-items: center; gap: 6px;
-}
-.check-output {
-    margin: 0; padding: 4px 8px; background: rgba(255,255,255,0.05);
-    border-radius: 4px; white-space: pre-wrap; word-break: break-word;
-    font-size: 0.95em; line-height: 1.5;
-}
-
 @media (max-width: 768px) {
     .header { flex-direction: column; text-align: center; gap: 15px; }
     .profiles-header { flex-direction: column; align-items: flex-start; }
-    .laptop-grid { grid-template-columns: 1fr; }
 }
