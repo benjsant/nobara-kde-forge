@@ -91,19 +91,33 @@ if ! command -v uv &>/dev/null; then
     info "uv non trouve, installation..."
     _UV_DONE=0
 
-    # Methode 1 : script officiel astral.sh
-    if curl -LsSf https://astral.sh/uv/install.sh -o /tmp/_uv_install.sh 2>/dev/null; then
-        sh /tmp/_uv_install.sh && _UV_DONE=1
-        rm -f /tmp/_uv_install.sh
-    else
-        warn "Script officiel astral.sh indisponible, tentative via pip..."
+    # Methode 1 (preferee sur Nobara/Fedora 41+) : DNF
+    # uv est dans les depots officiels Fedora. Installation system-wide,
+    # gere par dnf upgrade, propre, pas de PATH a bricoler.
+    if command -v dnf &>/dev/null && dnf list --available uv &>/dev/null 2>&1; then
+        info "uv disponible dans les depots, install via DNF (sudo requis)..."
+        if sudo dnf install -y uv 2>/dev/null; then
+            _UV_DONE=1
+            ok "uv installe via DNF"
+        fi
     fi
 
-    # Methode 2 : fallback pip
+    # Methode 2 : script officiel astral.sh (sans sudo)
+    if [ "$_UV_DONE" = "0" ]; then
+        info "Fallback : script officiel astral.sh..."
+        if curl -LsSf https://astral.sh/uv/install.sh -o /tmp/_uv_install.sh 2>/dev/null; then
+            sh /tmp/_uv_install.sh && _UV_DONE=1
+            rm -f /tmp/_uv_install.sh
+        else
+            warn "Script officiel astral.sh indisponible, tentative via pip..."
+        fi
+    fi
+
+    # Methode 3 : fallback pip
     if [ "$_UV_DONE" = "0" ]; then
         pip install --user uv --quiet 2>/dev/null \
             || pip3 install --user uv --quiet 2>/dev/null \
-            || fail "Impossible d'installer uv. Essayez manuellement : pip install uv"
+            || fail "Impossible d'installer uv. Essayez : sudo dnf install uv"
     fi
 
     export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
@@ -138,7 +152,6 @@ ok "Acces sudo"
 # =============================================================
 _MISSING_PKGS=()
 command -v sassc   &>/dev/null || _MISSING_PKGS+=("sassc")
-command -v acpi    &>/dev/null || _MISSING_PKGS+=("acpi")
 command -v git     &>/dev/null || _MISSING_PKGS+=("git")
 if [ ${#_MISSING_PKGS[@]} -gt 0 ]; then
     info "Installation des outils requis : ${_MISSING_PKGS[*]}..."
