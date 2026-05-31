@@ -6,7 +6,8 @@
     { "name": "steam", "description": "Plateforme de jeux Steam" },
     { "name": "gamemode", "description": "Optimiseur de performances gaming (daemon inclus)" },
     { "name": "mangohud", "description": "Overlay de monitoring en jeu (FPS, CPU, GPU)" },
-    { "name": "goverlay", "description": "Interface graphique de configuration MangoHud" }
+    { "name": "goverlay", "description": "Interface graphique de configuration MangoHud" },
+    { "name": "solaar", "description": "Gestion des peripheriques Logitech Unifying (souris/clavier/manette)" }
   ],
   "flatpak": [
     { "app": "com.heroicgameslauncher.hgl", "description": "Launcher Epic Games et GOG (Heroic)" },
@@ -14,7 +15,8 @@
     { "app": "com.vysp3r.ProtonPlus", "description": "Gestionnaire de versions Proton/Wine-GE" },
     { "app": "com.github.Matoking.protontricks", "description": "Winetricks pour jeux Steam via Proton" },
     { "app": "net.retrodeck.retrodeck", "description": "Suite d'emulation retro tout-en-un (RetroDECK)" },
-    { "app": "page.kramo.Cartridges", "description": "Lanceur de jeux unifie (Steam, Heroic, Lutris...)" }
+    { "app": "page.kramo.Cartridges", "description": "Lanceur de jeux unifie (Steam, Heroic, Lutris...)" },
+    { "app": "com.dec05eba.gpu_screen_recorder", "description": "Enregistreur ecran/jeu accelere (VAAPI/NVENC) : replay buffer style ShadowPlay" }
   ],
   "external": [],
   "remove": []

@@ -17,7 +17,7 @@
     {
       "name": "Docker CE",
       "description": "Moteur de conteneurs Docker (depot officiel docker.com)",
-      "cmd": "sudo bash -c 'dnf -y install dnf-plugins-core && dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo && dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin && systemctl enable --now docker && usermod -aG docker $SUDO_USER'"
+      "cmd": "sudo bash -c 'curl -sSLo /etc/yum.repos.d/docker-ce.repo https://download.docker.com/linux/fedora/docker-ce.repo && dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin && systemctl enable --now docker && usermod -aG docker $SUDO_USER'"
     }
   ],
   "remove": []

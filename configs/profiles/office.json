@@ -4,11 +4,14 @@
   "icon": "office",
   "apt": [
     { "name": "thunderbird", "description": "Client email et calendrier Mozilla" },
-    { "name": "transmission-qt", "description": "Client BitTorrent leger (version Qt/KDE)" }
+    { "name": "transmission-qt", "description": "Client BitTorrent leger (version Qt/KDE)" },
+    { "name": "libreoffice", "description": "Suite bureautique LibreOffice (RPM natif, integration KDE)" },
+    { "name": "xournalpp", "description": "Annotation PDF et prise de notes manuscrites" }
   ],
   "flatpak": [
     { "app": "org.onlyoffice.desktopeditors", "description": "Suite bureautique OnlyOffice (compatible MS Office)" },
-    { "app": "com.github.junrrein.PDFSlicer", "description": "Reorganisation et extraction de pages PDF" }
+    { "app": "com.github.junrrein.PDFSlicer", "description": "Reorganisation et extraction de pages PDF" },
+    { "app": "net.cozic.joplin_desktop", "description": "Joplin : prise de notes open-source synchronisable (alternative Obsidian)" }
   ],
   "external": [],
   "remove": []

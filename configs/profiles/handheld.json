@@ -7,8 +7,7 @@
     { "name": "gamescope", "description": "Compositeur Wayland (session SteamOS-like)" },
     { "name": "gamemode", "description": "Optimiseur de performances gaming" },
     { "name": "mangohud", "description": "Overlay FPS/CPU/GPU" },
-    { "name": "goverlay", "description": "Interface graphique MangoHud" },
-    { "name": "joystickwake", "description": "Empeche la mise en veille manette branchee" }
+    { "name": "goverlay", "description": "Interface graphique MangoHud" }
   ],
   "flatpak": [
     { "app": "com.heroicgameslauncher.hgl", "description": "Launcher Epic Games et GOG (Heroic)" },
