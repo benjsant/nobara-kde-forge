@@ -35,7 +35,7 @@ from utils.sandbox import looks_dangerous
 
 bp = Blueprint("profiles", __name__)
 
-PROFILE_ORDER = ["base", "office", "gaming", "htpc", "handheld", "dev", "multimedia", "docker", "distrobox", "amd", "nvidia", "privacy", "vpn", "browsers", "system"]
+PROFILE_ORDER = ["base", "office", "communication", "gaming", "htpc", "handheld", "dev", "multimedia", "docker", "distrobox", "amd", "nvidia", "privacy", "vpn", "browsers", "system"]
 
 _gpu_cache = None
 _profiles_cache = {"data": None, "ts": 0}
