@@ -14,6 +14,7 @@ from routes.shared import (
     task_lock,
     update_task_status,
 )
+from utils.kde_backup import BackupError, create_backup, delete_backup, list_backups, restore_backup
 from utils.theme_manager import ThemeManager
 
 bp = Blueprint("kde_settings", __name__)
@@ -204,6 +205,59 @@ def apply_settings():
 
     threading.Thread(target=run, daemon=True).start()
     return jsonify({"success": True, "message": "Application des parametres lancee"})
+
+
+@bp.route('/api/kde/backups')
+def kde_backups_list():
+    try:
+        return jsonify({"success": True, "backups": list_backups()})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@bp.route('/api/kde/backups/create', methods=['POST'])
+def kde_backups_create():
+    data = request.get_json(silent=True) or {}
+    label = data.get("label", "")
+    try:
+        info = create_backup(label=label)
+        log_success(f"Sauvegarde KDE creee : {info['filename']} ({info['files_count']} fichiers)")
+        return jsonify({"success": True, "backup": info})
+    except BackupError as e:
+        log_error(f"Echec sauvegarde KDE : {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@bp.route('/api/kde/backups/restore', methods=['POST'])
+def kde_backups_restore():
+    data = request.get_json(silent=True) or {}
+    filename = data.get("filename", "")
+    if not filename:
+        return jsonify({"success": False, "error": "filename requis"}), 400
+    try:
+        result = restore_backup(filename)
+        _notify_kde_reload()
+        log_success(f"Sauvegarde restauree : {filename} ({result['count']} fichiers)")
+        if result["skipped"]:
+            log_warn(f"Membres ignores (hors whitelist) : {len(result['skipped'])}")
+        return jsonify({"success": True, **result})
+    except BackupError as e:
+        log_error(f"Echec restauration : {e}")
+        return jsonify({"success": False, "error": str(e)}), 400
+
+
+@bp.route('/api/kde/backups/delete', methods=['POST'])
+def kde_backups_delete():
+    data = request.get_json(silent=True) or {}
+    filename = data.get("filename", "")
+    if not filename:
+        return jsonify({"success": False, "error": "filename requis"}), 400
+    try:
+        delete_backup(filename)
+        log_info(f"Sauvegarde supprimee : {filename}")
+        return jsonify({"success": True})
+    except BackupError as e:
+        return jsonify({"success": False, "error": str(e)}), 404
 
 
 @bp.route('/api/kde/dark-mode', methods=['POST'])
