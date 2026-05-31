@@ -45,18 +45,20 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             loadTheme();
-            updateStatus();
+            // updateStatus + loadSystemInfo sont desormais geres par le composant Alpine `forge()`
+            // (voir x-data="forge()" sur <body>). Polling 5s gere par son init().
             loadProfiles();
             loadNobaraTools();
             loadOptionalPackages();
             loadThemeCatalog();
             loadKdeOptions();
+            loadKdeBackups();
+            loadTweaks();
             loadHistory();
             loadFirewall();
             loadSddmStatus();
             connectLogs();
             loadLogsHistory();
-            setInterval(updateStatus, 5000);
         });
 
         // Theme
@@ -69,81 +71,178 @@
         }
 
         function loadTheme() {
-            const saved = localStorage.getItem('nobaraforgekde-theme') || 'light';
+            const saved = localStorage.getItem('nobaraforgekde-theme') || 'dark';
             document.documentElement.setAttribute('data-theme', saved);
             document.getElementById('themeIcon').textContent = saved === 'dark' ? '☀️' : '🌙';
         }
 
-        // Status polling
-        function updateStatus() {
-            fetch('/api/status')
-                .then(r => r.json())
-                .then(data => {
-                    updateCheck('status-internet', data.checks.internet);
-                    updateCheck('status-sudo', data.checks.sudo);
-                    updateCheck('status-python', data.checks.python_version);
-                    const tools = data.checks.tools || {};
-                    const missing = Object.entries(tools).filter(([,ok]) => !ok).map(([t]) => t);
-                    const warn = document.getElementById('toolsWarning');
-                    if (missing.length) {
-                        warn.textContent = 'Outils manquants : ' + missing.join(', ') + ' — certaines fonctions seront indisponibles.';
-                        warn.style.display = '';
-                    } else {
-                        warn.style.display = 'none';
-                    }
-                    document.getElementById('count-apt').textContent = data.packages.apt || 0;
-                    document.getElementById('count-optional').textContent = data.packages.optional || 0;
-                    document.getElementById('count-flatpak').textContent = data.packages.flatpak || 0;
-                    const totalThemes = (data.packages.themes_gtk || 0) + (data.packages.themes_icons || 0) + (data.packages.themes_cursors || 0);
-                    document.getElementById('count-themes').textContent = totalThemes;
-                    const disk = data.checks.disk_free_gb;
-                    document.getElementById('disk-free').textContent = disk !== undefined ? disk + ' Go' : '--';
-                    const diskItem = document.getElementById('status-disk');
-                    diskItem.classList.toggle('ok', disk > 5);
-                    diskItem.classList.toggle('error', disk !== undefined && disk <= 5);
-                    // Toggle snapshot timeshift checkbox uniquement si dispo
-                    const snapWrap = document.getElementById('snapshotToggleWrap');
-                    if (snapWrap) snapWrap.style.display = data.checks.timeshift ? 'inline-flex' : 'none';
-                    // Alimentation : visible uniquement sur laptop (power != null)
-                    updatePowerStatus(data.checks.power);
-                    updateTaskStatus(data.task);
-                })
-                .catch(err => console.error('Status error:', err));
+        // ============================================================
+        // Composant Alpine.js : status-bar + panneau identite Nobara
+        // ============================================================
+        // Remplace updateStatus(), loadSystemInfo(), updateCheck(),
+        // updatePowerStatus(), updateFailedServices(). Tout est declaratif via
+        // x-text/x-show/:class sur le HTML. Polling autonome via init() + setInterval.
+        // Le composant emet `status:updated` pour que le code legacy (task bar,
+        // snapshot toggle) puisse encore reagir au meme cycle de polling.
+        function forge() {
+            return {
+                checks: {},
+                packages: {},
+                systemInfo: null,
+
+                init() {
+                    this.updateStatus();
+                    this.loadSystemInfo();
+                    setInterval(() => this.updateStatus(), 5000);
+                },
+
+                async updateStatus() {
+                    try {
+                        const r = await fetch('/api/status');
+                        const data = await r.json();
+                        this.checks = data.checks || {};
+                        this.packages = data.packages || {};
+                        // Notifie le code legacy (task bar, snapshot toggle)
+                        window.dispatchEvent(new CustomEvent('status:updated', {detail: data}));
+                    } catch (e) { console.error('Status error:', e); }
+                },
+
+                async loadSystemInfo() {
+                    try {
+                        const r = await fetch('/api/system/info');
+                        const data = await r.json();
+                        if (data.success) this.systemInfo = data.info;
+                    } catch (e) { console.error('System info error:', e); }
+                },
+
+                // --- Computed : status-bar ---
+                get checkItems() {
+                    const c = this.checks, p = this.packages;
+                    const themes = (p.themes_gtk||0) + (p.themes_icons||0) + (p.themes_cursors||0);
+                    const disk = c.disk_free_gb;
+                    const failed = c.failed_services;
+                    return [
+                        { id: 'internet', label: 'Internet', value: c.internet ? '✅' : '❌', cls: c.internet ? 'ok' : 'error' },
+                        { id: 'sudo',     label: 'Sudo',     value: c.sudo ? '✅' : '❌',     cls: c.sudo ? 'ok' : 'error' },
+                        { id: 'python',   label: 'Python',   value: c.python_version ? '✅' : '❌', cls: c.python_version ? 'ok' : 'error' },
+                        { id: 'dnf',      label: 'DNF',      value: p.dnf ?? p.apt ?? 0,    cls: '' },
+                        { id: 'optional', label: 'Optionnel',value: p.optional ?? 0,        cls: '' },
+                        { id: 'flatpak',  label: 'Flatpaks', value: p.flatpak ?? 0,         cls: '' },
+                        { id: 'themes',   label: 'Themes',   value: themes,                  cls: '' },
+                        { id: 'disk',     label: 'Disque libre',
+                          value: (disk !== undefined ? disk + ' Go' : '--'),
+                          cls: (disk === undefined ? '' : (disk > 5 ? 'ok' : 'error')) },
+                        { id: 'failed',   label: 'Services en erreur',
+                          value: (failed === null || failed === undefined ? '?' : failed),
+                          cls: (failed === 0 ? 'ok' : (failed > 0 ? 'error' : '')) },
+                    ];
+                },
+
+                get powerCls() {
+                    if (!this.checks.power) return '';
+                    return this.checks.power.on_battery ? 'error' : 'ok';
+                },
+                get powerValue() {
+                    const p = this.checks.power;
+                    if (!p) return '--';
+                    return p.on_battery
+                        ? '🔋 ' + (p.capacity != null ? p.capacity + '%' : '')
+                        : '⚡ Secteur';
+                },
+
+                get missingTools() {
+                    const t = this.checks.tools || {};
+                    return Object.entries(t).filter(([,ok]) => !ok).map(([n]) => n);
+                },
+
+                get batteryMessage() {
+                    const p = this.checks.power;
+                    if (!p || !p.on_battery) return '';
+                    return '⚠ Vous etes sur batterie' +
+                           (p.capacity != null ? ' (' + p.capacity + '%)' : '') +
+                           '. Branchez le secteur avant une installation importante.';
+                },
+
+                // --- Computed : panneau identite ---
+                get osLabel() {
+                    if (!this.systemInfo) return '';
+                    const o = this.systemInfo.os;
+                    return o.id === 'nobara' ? `Nobara ${o.version}` : (o.pretty || 'OS inconnu');
+                },
+                get kernelLabel() {
+                    if (!this.systemInfo) return '';
+                    const k = this.systemInfo.kernel;
+                    let txt = `Kernel ${k.release.split('-')[0]}`;
+                    if (k.patches?.length) txt += ` (${k.patches.join('+')})`;
+                    if (k.hz) txt += ` HZ=${k.hz}`;
+                    return txt;
+                },
+                get plasmaLabel() {
+                    return this.systemInfo
+                        ? (this.systemInfo.plasma ? `Plasma ${this.systemInfo.plasma}` : 'Plasma ?')
+                        : '';
+                },
+                get mesaLabel() {
+                    return this.systemInfo
+                        ? (this.systemInfo.mesa ? `Mesa ${this.systemInfo.mesa}` : 'Mesa ?')
+                        : '';
+                },
+                get sessionLabel() {
+                    if (!this.systemInfo) return '';
+                    return `${this.systemInfo.session.desktop || '?'} ${this.systemInfo.session.type || ''}`.trim();
+                },
+                get lsmLabel() {
+                    if (!this.systemInfo) return '';
+                    const lsm = (this.systemInfo.security.lsm || [])
+                        .filter(x => x && x !== 'capability').join('+');
+                    return `LSM: ${lsm || '?'}`;
+                },
+                get selinuxLabel() {
+                    return this.systemInfo ? `SELinux: ${this.systemInfo.security.selinux || '?'}` : '';
+                },
+                get sysctlLabel() {
+                    if (!this.systemInfo) return '';
+                    const gs = this.systemInfo.gaming_sysctls;
+                    const summary = [];
+                    if (gs.split_lock_mitigate === '0') summary.push('split_lock=0');
+                    if (gs.max_map_count && parseInt(gs.max_map_count) > 1000000) summary.push('max_map=ok');
+                    if (gs.tcp_mtu_probing === '1') summary.push('mtu=on');
+                    return summary.length ? `Sysctl gaming: ${summary.join(' ')}` : 'Sysctl: default';
+                },
+                get sysctlTooltip() {
+                    if (!this.systemInfo) return '';
+                    const gs = this.systemInfo.gaming_sysctls;
+                    return `swappiness=${gs.swappiness}, max_map_count=${gs.max_map_count}`;
+                },
+                get fsLabel() {
+                    if (!this.systemInfo) return '';
+                    const fs = this.systemInfo.btrfs_root;
+                    return fs.is_btrfs
+                        ? `btrfs ${fs.subvol || ''} ${fs.compress ? '+'+fs.compress : ''}`.trim()
+                        : 'FS: non-btrfs';
+                },
+                get fsTooltip() {
+                    if (!this.systemInfo?.btrfs_root?.is_btrfs) return '';
+                    return (this.systemInfo.btrfs_root.options || []).join(',');
+                },
+                get zramLabel() {
+                    if (!this.systemInfo) return '';
+                    const z = this.systemInfo.zram;
+                    if (!z || !z.length) return 'pas de zram';
+                    const total = z.reduce((s, d) => s + d.size_mb, 0);
+                    return `zram ${(total / 1024).toFixed(1)} Go`;
+                },
+            };
         }
 
-        function updateCheck(elemId, isOk) {
-            const elem = document.getElementById(elemId);
-            elem.classList.toggle('ok', isOk);
-            elem.classList.toggle('error', !isOk);
-            elem.querySelector('.value').textContent = isOk ? '✅' : '❌';
-        }
-
-        function updatePowerStatus(power) {
-            // power = null sur desktop (pas de batterie) -> cache l'indicateur et la banniere
-            const item = document.getElementById('status-power');
-            const value = document.getElementById('power-value');
-            const banner = document.getElementById('batteryWarning');
-            if (!power) {
-                item.style.display = 'none';
-                banner.style.display = 'none';
-                return;
-            }
-            item.style.display = '';
-            if (power.on_battery) {
-                value.textContent = '🔋 ' + (power.capacity != null ? power.capacity + '%' : '');
-                item.classList.add('error');
-                item.classList.remove('ok');
-                banner.textContent = '⚠ Vous etes sur batterie' +
-                    (power.capacity != null ? ' (' + power.capacity + '%)' : '') +
-                    '. Branchez le secteur avant une installation importante pour eviter une coupure en cours de route.';
-                banner.style.display = '';
-            } else {
-                value.textContent = '⚡ Secteur';
-                item.classList.add('ok');
-                item.classList.remove('error');
-                banner.style.display = 'none';
-            }
-        }
+        // Listener legacy pour task-bar et snapshot toggle (encore en vanilla JS).
+        // Le composant Alpine `forge` emet cet event a chaque polling /api/status.
+        window.addEventListener('status:updated', e => {
+            const data = e.detail;
+            const snapWrap = document.getElementById('snapshotToggleWrap');
+            if (snapWrap) snapWrap.style.display = data.checks.timeshift ? 'inline-flex' : 'none';
+            updateTaskStatus(data.task);
+        });
 
         function updateTaskStatus(task) {
             const taskBar = document.getElementById('taskBar');
@@ -644,6 +743,322 @@
             });
         }
 
+        // =============================================
+        // SAUVEGARDES CONFIG KDE
+        // =============================================
+        function _formatBackupDate(ts) {
+            // "YYYYMMDD-HHMMSS" -> "DD/MM/YYYY HH:MM:SS"
+            const m = /^(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})(\d{2})$/.exec(ts || '');
+            return m ? `${m[3]}/${m[2]}/${m[1]} ${m[4]}:${m[5]}:${m[6]}` : '?';
+        }
+
+        function _formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' o';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' Ko';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' Mo';
+        }
+
+        function loadKdeBackups() {
+            const list = document.getElementById('kdeBackupsList');
+            if (!list) return;
+            list.innerHTML = '<div style="color: var(--text-muted);">Chargement...</div>';
+            fetch('/api/kde/backups')
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) {
+                        list.innerHTML = '<div style="color: var(--danger);">Erreur : ' + esc(data.error || '') + '</div>';
+                        return;
+                    }
+                    if (!data.backups || data.backups.length === 0) {
+                        list.innerHTML = '<div style="color: var(--text-muted);">Aucune sauvegarde pour l\'instant.</div>';
+                        return;
+                    }
+                    list.innerHTML = data.backups.map(b => {
+                        const date = _formatBackupDate(b.timestamp);
+                        const size = _formatSize(b.size);
+                        const labelTag = b.label
+                            ? `<span style="background: rgba(155,89,182,0.15); color: var(--primary); padding: 2px 8px; border-radius: 6px; font-size: 0.78em; font-weight: 600; margin-left: 8px;">${esc(b.label)}</span>`
+                            : '';
+                        return `<div style="background: var(--light); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 220px;">
+                                <div style="font-weight: 600; color: var(--dark);">${date}${labelTag}</div>
+                                <div style="font-size: 0.78em; color: var(--text-muted); margin-top: 2px;">${size} — ${esc(b.filename)}</div>
+                            </div>
+                            <button class="btn-small" onclick="restoreKdeBackup('${esc(b.filename)}')"
+                                    style="border-color: var(--primary); color: var(--primary);">Restaurer</button>
+                            <button class="btn-small" onclick="deleteKdeBackup('${esc(b.filename)}')"
+                                    style="border-color: var(--danger); color: var(--danger);">Supprimer</button>
+                        </div>`;
+                    }).join('');
+                })
+                .catch(() => {
+                    list.innerHTML = '<div style="color: var(--danger);">Erreur reseau.</div>';
+                });
+        }
+
+        function createKdeBackup() {
+            const labelInput = document.getElementById('backupLabel');
+            const label = labelInput ? labelInput.value.trim() : '';
+            fetch('/api/kde/backups/create', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({label})
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(`Sauvegarde creee (${data.backup.files_count} fichiers)`, 'success');
+                    if (labelInput) labelInput.value = '';
+                    loadKdeBackups();
+                } else {
+                    showToast(data.error || 'Erreur', 'error');
+                }
+            })
+            .catch(() => showToast('Erreur reseau', 'error'));
+        }
+
+        function restoreKdeBackup(filename) {
+            showConfirm(
+                'Restaurer la sauvegarde',
+                `Les fichiers de config KDE actuels seront ecrases par "${filename}". Une re-connexion ou redemarrage peut etre necessaire pour que tous les changements soient visibles. Continuer ?`,
+                () => {
+                    fetch('/api/kde/backups/restore', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({filename})
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast(`Restauration : ${data.count} fichier(s) restaure(s)`, 'success');
+                            loadKdeOptions();
+                        } else {
+                            showToast(data.error || 'Erreur', 'error');
+                        }
+                    })
+                    .catch(() => showToast('Erreur reseau', 'error'));
+                },
+                true
+            );
+        }
+
+        function deleteKdeBackup(filename) {
+            showConfirm(
+                'Supprimer la sauvegarde',
+                `Supprimer definitivement "${filename}" ? Cette action est irreversible.`,
+                () => {
+                    fetch('/api/kde/backups/delete', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({filename})
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('Sauvegarde supprimee', 'success');
+                            loadKdeBackups();
+                        } else {
+                            showToast(data.error || 'Erreur', 'error');
+                        }
+                    })
+                    .catch(() => showToast('Erreur reseau', 'error'));
+                },
+                true
+            );
+        }
+
+        // =============================================
+        // TWEAKS RAPIDES (Plasma reset, services, audio)
+        // =============================================
+        function loadTweaks() {
+            loadServices();
+            loadAudioStatus();
+        }
+
+        function resetPlasma() {
+            showConfirm('Reinitialiser Plasma',
+                'Tue plasmashell, vide son cache, le relance. La barre des taches disparait 1-2 secondes. Continuer ?',
+                () => {
+                    fetch('/api/tweaks/plasma/reset', {method: 'POST'})
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.success) showToast('Plasma reinitialise', 'success');
+                            else showToast(data.error || 'Erreur', 'error');
+                        })
+                        .catch(() => showToast('Erreur reseau', 'error'));
+                });
+        }
+
+        function clearCaches() {
+            showConfirm('Vider les caches',
+                'Vide ~/.cache/thumbnails, plasma*, krunner, icon-cache. Les miniatures seront regenerees au prochain affichage.',
+                () => {
+                    fetch('/api/tweaks/cache/clear', {method: 'POST'})
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.success) {
+                                const mb = (data.freed_bytes / 1024 / 1024).toFixed(1);
+                                showToast(`${mb} Mo recuperes (${data.cleared.length} entrees)`, 'success');
+                            } else {
+                                showToast(data.error || 'Erreur', 'error');
+                            }
+                        })
+                        .catch(() => showToast('Erreur reseau', 'error'));
+                });
+        }
+
+        function loadServices() {
+            const grid = document.getElementById('servicesGrid');
+            if (!grid) return;
+            fetch('/api/tweaks/services')
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success || !data.services) {
+                        grid.innerHTML = '<div style="color: var(--danger);">Erreur de chargement.</div>';
+                        return;
+                    }
+                    grid.innerHTML = data.services.map(s => {
+                        const missing = s.raw_active === 'missing';
+                        const statusColor = missing ? 'var(--text-muted)' : (s.active ? 'var(--success)' : 'var(--text-muted)');
+                        const statusText = missing ? 'non installe' : (s.active ? 'actif' : 'arrete');
+                        const checked = s.enabled ? 'checked' : '';
+                        const control = missing
+                            ? '<span style="font-size: 0.78em; color: var(--text-muted); flex-shrink: 0;">absent</span>'
+                            : `<label class="toggle-switch" style="flex-shrink: 0;">
+                                  <input type="checkbox" ${checked} onchange="toggleService('${esc(s.name)}', this.checked)">
+                                  <span class="slider"></span>
+                              </label>`;
+                        return `<div style="background: var(--light); border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 200px;">
+                                <div style="font-weight: 600; color: var(--dark);">
+                                    ${esc(s.name)}
+                                    <span style="color: ${statusColor}; font-size: 0.8em; font-weight: 500; margin-left: 8px;">[${statusText}]</span>
+                                </div>
+                                <div style="font-size: 0.78em; color: var(--text-muted); margin-top: 2px;">${esc(s.description)}</div>
+                            </div>
+                            ${control}
+                        </div>`;
+                    }).join('');
+                })
+                .catch(() => {
+                    grid.innerHTML = '<div style="color: var(--danger);">Erreur reseau.</div>';
+                });
+        }
+
+        function toggleService(name, enable) {
+            fetch('/api/tweaks/services/toggle', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name, enable})
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showToast(`${name} ${enable ? 'active' : 'desactive'}`, 'success');
+                } else {
+                    showToast(data.error || 'Erreur', 'error');
+                }
+                setTimeout(loadServices, 400);
+            })
+            .catch(() => {
+                showToast('Erreur reseau', 'error');
+                loadServices();
+            });
+        }
+
+        function loadAudioStatus() {
+            const ctrl = document.getElementById('audioControls');
+            if (!ctrl) return;
+            fetch('/api/tweaks/audio')
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) {
+                        ctrl.innerHTML = '<div style="color: var(--danger);">Erreur.</div>';
+                        return;
+                    }
+                    const activeRate = data.configured_rate || data.current_rate;
+                    const currentDisplay = data.current_rate ? `${data.current_rate} Hz` : 'inconnu (pw-metadata absent ?)';
+                    const configDisplay = data.configured_rate ? `${data.configured_rate} Hz` : 'non defini';
+                    const opts = data.allowed_rates.map(r =>
+                        `<option value="${r}" ${r === activeRate ? 'selected' : ''}>${r} Hz</option>`
+                    ).join('');
+                    ctrl.innerHTML = `
+                        <div style="background: var(--light); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 220px;">
+                                <div style="font-weight: 600; color: var(--dark);">Sample rate</div>
+                                <div style="font-size: 0.78em; color: var(--text-muted); margin-top: 2px;">
+                                    Actuel : ${currentDisplay} — Config NobaraForgeKDE : ${configDisplay}
+                                </div>
+                            </div>
+                            <select id="audioRateSelect" style="padding: 8px 12px; border: 2px solid var(--border); border-radius: 6px; background: var(--card-bg); color: var(--text); font-size: 0.9em;">
+                                ${opts}
+                            </select>
+                            <button class="btn-small" onclick="applyAudioRate()" style="padding: 8px 16px;">Appliquer</button>
+                        </div>
+                        <div style="background: var(--light); border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 220px;">
+                                <div style="font-weight: 600; color: var(--dark);">Codecs Bluetooth premium</div>
+                                <div style="font-size: 0.78em; color: var(--text-muted); margin-top: 2px;">
+                                    LDAC + aptX-HD + AAC (necessaire pour casques BT haut de gamme)
+                                </div>
+                            </div>
+                            <label class="toggle-switch" style="flex-shrink: 0;">
+                                <input type="checkbox" id="btCodecsToggle" ${data.bt_premium ? 'checked' : ''} onchange="applyBtCodecs(this.checked)">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    `;
+                })
+                .catch(() => {
+                    ctrl.innerHTML = '<div style="color: var(--danger);">Erreur reseau.</div>';
+                });
+        }
+
+        function applyAudioRate() {
+            const sel = document.getElementById('audioRateSelect');
+            if (!sel) return;
+            const rate = parseInt(sel.value, 10);
+            fetch('/api/tweaks/audio/rate', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({rate})
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    const msg = `Sample rate -> ${rate} Hz` + (data.warning ? ' (' + data.warning + ')' : '');
+                    showToast(msg, data.warning ? 'warning' : 'success');
+                    setTimeout(loadAudioStatus, 1500);
+                } else {
+                    showToast(data.error || 'Erreur', 'error');
+                }
+            })
+            .catch(() => showToast('Erreur reseau', 'error'));
+        }
+
+        function applyBtCodecs(enable) {
+            fetch('/api/tweaks/audio/bt-codecs', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({enable})
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    const verb = enable ? 'actives' : 'desactives';
+                    const msg = `Codecs BT premium ${verb}` + (data.warning ? ' (' + data.warning + ')' : '');
+                    showToast(msg, data.warning ? 'warning' : 'success');
+                } else {
+                    showToast(data.error || 'Erreur', 'error');
+                    loadAudioStatus();
+                }
+            })
+            .catch(() => {
+                showToast('Erreur reseau', 'error');
+                loadAudioStatus();
+            });
+        }
+
         function quitApp() {
             showConfirm('Quitter', 'Fermer NobaraForgeKDE ?', () => {
                 fetch('/api/quit', { method: 'POST' })
@@ -672,7 +1087,7 @@
 
         function switchThemeTab(type) {
             _currentThemeTab = type;
-            ['gtk', 'icon', 'cursor'].forEach(t => {
+            ['gtk', 'icon', 'cursor', 'kvantum'].forEach(t => {
                 const btn = document.getElementById('themeTab' + t.charAt(0).toUpperCase() + t.slice(1));
                 if (btn) btn.style.borderColor = (t === type) ? 'var(--primary)' : '';
             });

@@ -1,22 +1,41 @@
 <!DOCTYPE html>
-<html lang="fr" data-theme="light">
+<html lang="fr" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NobaraForgeKDE</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0%25' stop-color='%239b59b6'/><stop offset='100%25' stop-color='%236c2d8e'/></linearGradient></defs><rect x='4' y='4' width='120' height='120' rx='22' fill='url(%23g)'/><path d='M88 28a18 18 0 0 0-16.6 24.9L34 90.3a8 8 0 0 0 0 11.3l2.4 2.4a8 8 0 0 0 11.3 0l37.4-37.4A18 18 0 1 0 88 28zm0 26a8 8 0 1 1 0-16 8 8 0 0 1 0 16z' fill='%23f5f5f5'/></svg>">
     <link rel="stylesheet" href="/static/css/style.css">
+    <script defer src="https://unpkg.com/alpinejs@3.13.10/dist/cdn.min.js"></script>
 </head>
-<body>
+<body x-data="forge()" x-init="init()">
     <div class="container">
         <div class="header">
             <div class="header-left">
-                <h1>NobaraForgeKDE</h1>
-                <p>Installation automatisee pour Nobara KDE</p>
+                <div class="header-logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="52" height="52" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="hbg" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#9b59b6"/>
+                                <stop offset="100%" stop-color="#6c2d8e"/>
+                            </linearGradient>
+                        </defs>
+                        <rect x="4" y="4" width="120" height="120" rx="22" ry="22" fill="url(#hbg)"/>
+                        <path d="M88 28a18 18 0 0 0-16.6 24.9L34 90.3a8 8 0 0 0 0 11.3l2.4 2.4a8 8 0 0 0 11.3 0l37.4-37.4A18 18 0 1 0 88 28zm0 26a8 8 0 1 1 0-16 8 8 0 0 1 0 16z"
+                              fill="#f0e6fa" stroke="#3d1a5e" stroke-width="1.5" stroke-linejoin="round"/>
+                        <text x="64" y="118" text-anchor="middle"
+                              font-family="Inter, Noto Sans, sans-serif" font-size="14" font-weight="600"
+                              fill="#d7bde2" letter-spacing="1">FORGE</text>
+                    </svg>
+                    <div>
+                        <h1>NobaraForgeKDE</h1>
+                        <p>Installation automatisee pour Nobara KDE</p>
+                    </div>
+                </div>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
                 <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Basculer clair/sombre">
-                    <span id="themeIcon">🌙</span>
+                    <span id="themeIcon">☀️</span>
                 </button>
                 <button class="btn-small" onclick="quitApp()" title="Quitter NobaraForgeKDE"
                         style="border-color: var(--danger); color: var(--danger); font-size: 0.85em;">
@@ -25,47 +44,43 @@
             </div>
         </div>
 
-        <div class="status-bar" id="statusBar">
-            <div class="status-item" id="status-internet">
-                <h3>Internet</h3>
-                <div class="value">⏳</div>
-            </div>
-            <div class="status-item" id="status-sudo">
-                <h3>Sudo</h3>
-                <div class="value">⏳</div>
-            </div>
-            <div class="status-item" id="status-python">
-                <h3>Python</h3>
-                <div class="value">⏳</div>
-            </div>
-            <div class="status-item">
-                <h3>DNF</h3>
-                <div class="value" id="count-apt">0</div>
-            </div>
-            <div class="status-item">
-                <h3>Optionnel</h3>
-                <div class="value" id="count-optional">0</div>
-            </div>
-            <div class="status-item">
-                <h3>Flatpaks</h3>
-                <div class="value" id="count-flatpak">0</div>
-            </div>
-            <div class="status-item">
-                <h3>Themes</h3>
-                <div class="value" id="count-themes">0</div>
-            </div>
-            <div class="status-item" id="status-disk">
-                <h3>Disque libre</h3>
-                <div class="value" id="disk-free">--</div>
-            </div>
-            <div class="status-item" id="status-power" style="display: none;">
+        <div class="status-bar">
+            <template x-for="item in checkItems" :key="item.id">
+                <div class="status-item" :class="item.cls">
+                    <h3 x-text="item.label"></h3>
+                    <div class="value" x-text="item.value"></div>
+                </div>
+            </template>
+            <div class="status-item" x-show="checks.power" :class="powerCls" x-cloak>
                 <h3>Alimentation</h3>
-                <div class="value" id="power-value">--</div>
+                <div class="value" x-text="powerValue"></div>
             </div>
         </div>
 
-        <div class="tools-warning" id="toolsWarning" style="display: none;"></div>
-        <div class="tools-warning" id="batteryWarning" style="display: none; background: #fef3cd; border-left-color: var(--warning); color: #856404;"></div>
+        <div class="tools-warning" id="toolsWarning" x-show="missingTools.length > 0" x-cloak>
+            <span x-text="'Outils manquants : ' + missingTools.join(', ') + ' — certaines fonctions seront indisponibles.'"></span>
+        </div>
+        <div class="battery-warning" id="batteryWarning" x-show="checks.power && checks.power.on_battery" x-cloak>
+            <span x-text="batteryMessage"></span>
+        </div>
+
+        <!-- Identite systeme Nobara -->
+        <div class="nobara-identity" x-show="systemInfo" x-cloak>
+            <div class="nobara-identity-row">
+                <span class="nobara-pill" x-text="osLabel" :title="systemInfo?.os?.pretty"></span>
+                <span class="nobara-pill" x-text="kernelLabel" :title="systemInfo?.kernel?.release"></span>
+                <span class="nobara-pill" x-text="plasmaLabel"></span>
+                <span class="nobara-pill" x-text="mesaLabel"></span>
+                <span class="nobara-pill" x-text="sessionLabel"></span>
+            </div>
+            <div class="nobara-identity-row">
+                <span class="nobara-pill nobara-pill-sec" x-text="lsmLabel" :title="(systemInfo?.security?.lsm || []).join(',')"></span>
+                <span class="nobara-pill nobara-pill-sec" x-text="selinuxLabel"></span>
+                <span class="nobara-pill nobara-pill-sec" x-text="sysctlLabel" :title="sysctlTooltip"></span>
+                <span class="nobara-pill nobara-pill-sec" x-text="fsLabel" :title="fsTooltip"></span>
+                <span class="nobara-pill nobara-pill-sec" x-text="zramLabel"></span>
+            </div>
+        </div>
 
         <div class="task-bar" id="taskBar" style="display: none;">
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
@@ -146,9 +161,10 @@
             <div class="profiles-header">
                 <h2>Themes a installer</h2>
                 <div class="profiles-actions">
-                    <button class="btn-small" id="themeTabGtk"    onclick="switchThemeTab('gtk')"    style="border-color: var(--primary);">GTK</button>
-                    <button class="btn-small" id="themeTabIcon"   onclick="switchThemeTab('icon')">Icones</button>
-                    <button class="btn-small" id="themeTabCursor" onclick="switchThemeTab('cursor')">Curseurs</button>
+                    <button class="btn-small" id="themeTabGtk"     onclick="switchThemeTab('gtk')"    style="border-color: var(--primary);">GTK</button>
+                    <button class="btn-small" id="themeTabIcon"    onclick="switchThemeTab('icon')">Icones</button>
+                    <button class="btn-small" id="themeTabCursor"  onclick="switchThemeTab('cursor')">Curseurs</button>
+                    <button class="btn-small" id="themeTabKvantum" onclick="switchThemeTab('kvantum')">Kvantum</button>
                     <button class="btn-small" onclick="loadThemeCatalog()">Rafraichir catalogue</button>
                     <button class="btn-small" onclick="reloadAllThemes()" style="border-color: var(--secondary); color: var(--secondary);">
                         Recharger tous les themes
@@ -189,6 +205,76 @@
                 <button class="btn-small" style="padding: 18px; font-size: 1em;" onclick="exportCurrentKde()">
                     Exporter config KDE actuelle
                 </button>
+            </div>
+        </div>
+
+        <!-- Sauvegardes de la config KDE -->
+        <div class="profiles-section" id="kdeBackupSection">
+            <div class="profiles-header">
+                <h2>Sauvegardes config bureau</h2>
+                <button class="btn-small" onclick="loadKdeBackups()">Rafraichir</button>
+            </div>
+            <p style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 12px;">
+                Sauvegarde les fichiers de config KDE (themes, raccourcis, panels, KWin, Kvantum, etc.).
+                Stocke dans <code>~/.local/share/nobaraforgekde/backups/</code>. Pratique avant d'experimenter.
+            </p>
+            <div style="display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
+                <input type="text" id="backupLabel" placeholder="Etiquette optionnelle (ex: avant-experiences)"
+                       maxlength="32"
+                       style="flex: 1; min-width: 200px; padding: 10px 12px; border: 2px solid var(--border); border-radius: 8px; background: var(--card-bg); color: var(--text); font-size: 0.9em;">
+                <button class="install-profiles-btn" onclick="createKdeBackup()"
+                        style="flex: 0 0 auto; padding: 10px 24px; font-size: 0.95em; width: auto;">
+                    Creer une sauvegarde
+                </button>
+            </div>
+            <div id="kdeBackupsList">
+                <div style="color: var(--text-muted);">Chargement...</div>
+            </div>
+        </div>
+
+        <!-- Tweaks rapides : reset Plasma, services systemd, audio -->
+        <div class="profiles-section" id="tweaksSection">
+            <div class="profiles-header">
+                <h2>Tweaks rapides</h2>
+                <button class="btn-small" onclick="loadTweaks()">Rafraichir</button>
+            </div>
+
+            <!-- Reparation rapide -->
+            <div style="margin-bottom: 22px;">
+                <h3 style="color: var(--primary); margin-bottom: 6px; font-size: 1em;">Reparation rapide</h3>
+                <p style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 10px;">
+                    Resout les bugs courants de Plasma (panel/widgets geles, miniatures cassees).
+                </p>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn-small" onclick="resetPlasma()" style="padding: 10px 16px;">
+                        Reinitialiser Plasma (kill + restart plasmashell)
+                    </button>
+                    <button class="btn-small" onclick="clearCaches()" style="padding: 10px 16px;">
+                        Vider les caches (~/.cache/*)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Services systemd -->
+            <div style="margin-bottom: 22px;">
+                <h3 style="color: var(--primary); margin-bottom: 6px; font-size: 1em;">Services systemd</h3>
+                <p style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 10px;">
+                    Active/desactive au demarrage. Necessite le cache sudo (entretenu par le launcher).
+                </p>
+                <div id="servicesGrid" style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="color: var(--text-muted);">Chargement...</div>
+                </div>
+            </div>
+
+            <!-- Audio (PipeWire + Bluetooth) -->
+            <div>
+                <h3 style="color: var(--primary); margin-bottom: 6px; font-size: 1em;">Audio (PipeWire)</h3>
+                <p style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 10px;">
+                    Sample rate et codecs Bluetooth premium (LDAC, aptX-HD, AAC).
+                </p>
+                <div id="audioControls">
+                    <div style="color: var(--text-muted);">Chargement...</div>
+                </div>
             </div>
         </div>
 
