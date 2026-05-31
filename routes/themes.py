@@ -19,9 +19,10 @@ from utils.theme_manager import ThemeManager
 bp = Blueprint("themes", __name__)
 
 _CATALOG_FILES = {
-    "gtk":    "configs/themes_gtk.json",
-    "icon":   "configs/themes_icons.json",
-    "cursor": "configs/themes_cursors.json",
+    "gtk":     "configs/themes_gtk.json",
+    "icon":    "configs/themes_icons.json",
+    "cursor":  "configs/themes_cursors.json",
+    "kvantum": "configs/themes_kvantum.json",
 }
 
 
@@ -63,7 +64,7 @@ def install_theme():
     system     = bool(data.get("system", True))
 
     if theme_type not in _CATALOG_FILES or not theme_name:
-        return jsonify({"success": False, "error": "type et name requis (gtk|icon|cursor)"}), 400
+        return jsonify({"success": False, "error": "type et name requis (gtk|icon|cursor|kvantum)"}), 400
 
     try:
         raw = json.loads(Path(_CATALOG_FILES[theme_type]).read_text())
@@ -90,6 +91,8 @@ def install_theme():
     if not system:
         if theme_type == "gtk":
             os.makedirs(f"{home}/.themes", exist_ok=True)
+        elif theme_type == "kvantum":
+            os.makedirs(f"{home}/.config/Kvantum", exist_ok=True)
         else:
             os.makedirs(f"{home}/.icons", exist_ok=True)
             os.makedirs(f"{home}/.local/share/icons", exist_ok=True)
