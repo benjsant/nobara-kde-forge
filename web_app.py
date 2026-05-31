@@ -14,6 +14,7 @@ from routes import (
     state_routes,
     system,
     themes,
+    tweaks,
 )
 from routes.shared import log_info, log_warn
 from utils.lockfile import LockfileError, acquire, install_signal_handlers
@@ -38,6 +39,7 @@ app.register_blueprint(system.bp)
 app.register_blueprint(themes.bp)
 app.register_blueprint(login_manager.bp)
 app.register_blueprint(nobara_tools.bp)
+app.register_blueprint(tweaks.bp)
 
 
 @app.route('/')
