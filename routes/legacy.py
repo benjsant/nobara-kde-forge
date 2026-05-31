@@ -26,6 +26,7 @@ from routes.shared import (
 )
 from utils import check_command_exists, system_update, timeshift_available
 from utils.power import get_power_state
+from utils.system_info import gather as gather_system_info
 from utils.theme_manager import ThemeManager
 
 bp = Blueprint("legacy", __name__)
@@ -61,6 +62,15 @@ def _check_system():
     checks["timeshift"] = timeshift_available()
     # `power` est None sur un desktop sans batterie (UI cache l'indicateur).
     checks["power"] = get_power_state()
+    # Services systemd en erreur — diagnostic rapide
+    try:
+        r = subprocess.run(
+            ["systemctl", "--failed", "--no-legend", "--no-pager", "--plain"],
+            capture_output=True, text=True, timeout=3,
+        )
+        checks["failed_services"] = sum(1 for line in r.stdout.splitlines() if line.strip())
+    except Exception:
+        checks["failed_services"] = None
     return checks
 
 
@@ -105,6 +115,14 @@ def status():
     _status_cache["data"] = data
     _status_cache["ts"] = now
     return jsonify(data)
+
+
+@bp.route('/api/system/info')
+def system_info():
+    try:
+        return jsonify({"success": True, "info": gather_system_info()})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @bp.route('/api/task/cancel', methods=['POST'])
