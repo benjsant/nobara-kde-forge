@@ -46,6 +46,7 @@ GitHub Actions ([.github/workflows/ci.yml](.github/workflows/ci.yml)) : matrix P
   - `bwrap` (bubblewrap) enveloppe les `cmd_user` des thèmes : filesystem read-only sauf `~/.themes`, `~/.icons`, `~/.local`, `~/.config` et le clone path. PID/UTS namespace isolés, network gardé.
   - **Non applicable** aux commandes avec `sudo` (escalade root casse le user namespace) — pour celles-là, **audit log** systématique : la commande complète est affichée + `looks_dangerous()` détecte patterns suspects (eval, `/dev/tcp`, fork bomb, `rm -rf /`, pipes `curl|bash`, etc.).
   - Fallback transparent si `bwrap` absent.
+- **Backup config KDE** ([utils/kde_backup.py](utils/kde_backup.py)) : whitelist stricte de 15 fichiers (`kdeglobals`, `kwinrc`, `plasmarc`, panel layout, raccourcis, Kvantum, etc.) dans `~/.local/share/nobaraforgekde/backups/`. Filename validé par regex `^kde-\d{8}-\d{6}(-label)?\.tar\.gz$`. À la restauration, chaque membre du tar est filtré contre la whitelist + check `..`/chemin absolu — defense en profondeur.
 
 ### Pre-commit
 
@@ -78,14 +79,15 @@ nobara_kde_forge/
 ├── routes/                  # Blueprints Flask (API JSON + SSE logs)
 │   ├── __init__.py          # Enregistrement des blueprints
 │   ├── shared.py            # Logger SSE, fonctions communes, notify-send
-│   ├── legacy.py            # /api/install, /api/remove, /api/update, /api/tools-check
+│   ├── legacy.py            # /api/status (+ failed_services), /api/system/info, /api/execute/*, /api/theme/*
 │   ├── profiles.py          # /api/profiles/*
-│   ├── kde_settings.py      # /api/kde/* — kwriteconfig6/kreadconfig6 (remplace dconf.py de minty_forge)
+│   ├── kde_settings.py      # /api/kde/* — kwriteconfig6/kreadconfig6 + /api/kde/backups/* (cycle backup KDE)
 │   ├── login_manager.py     # /api/sddm/* — config plasma-login-manager (DM par defaut Nobara/Fedora KDE 42+) ; warning si SDDM detecte. URL gardee en /api/sddm/* pour compat front
 │   ├── system.py            # /api/system/* — firewalld (remplace ufw)
-│   ├── themes.py            # /api/themes/*
+│   ├── themes.py            # /api/themes/* — catalogues GTK/icon/cursor/kvantum
 │   ├── state_routes.py      # /api/state/* — rollback
-│   └── nobara_tools.py      # /api/nobara/* — detection + launch des outils Nobara natifs (welcome, driver-manager, etc.)
+│   ├── nobara_tools.py      # /api/nobara/* — detection + launch des outils Nobara natifs (welcome, driver-manager, etc.)
+│   └── tweaks.py            # /api/tweaks/* — reset plasmashell, vidage caches, services systemd, audio PipeWire/BT
 │
 ├── scripts/                 # Logique d'installation (appelés par les routes)
 │   ├── __init__.py
@@ -108,7 +110,12 @@ nobara_kde_forge/
 │   ├── security.py          # Anti-CSRF / anti-DNS-rebinding middleware Flask
 │   ├── sandbox.py           # bwrap wrapper + detection patterns dangereux
 │   ├── lockfile.py          # Lock file global (PID file + signal handlers)
-│   └── power.py             # Detection batterie (sysfs) -> warning UI
+│   ├── power.py             # Detection batterie (sysfs) -> warning UI
+│   ├── kde_backup.py        # Backup/restore config KDE : tar.gz dans ~/.local/share/nobaraforgekde/backups/
+│   ├── plasma_tweaks.py     # Reset plasmashell + clear caches (~/.cache/plasma*, thumbnails, krunner)
+│   ├── services_manager.py  # Toggle services systemd whitelistes (fstrim/bluetooth/cups/sshd/firewalld)
+│   ├── audio_tweaks.py      # PipeWire sample rate + codecs BT premium (drop-in user-level)
+│   └── system_info.py       # Detection identite Nobara : kernel patches (CACHY/BORE/NTSYNC), LSM, btrfs, zram (cache 30s)
 │
 ├── schemas/                 # Modèles Pydantic (distro-agnostic)
 │   ├── __init__.py
@@ -122,10 +129,12 @@ nobara_kde_forge/
 │   ├── optional_install.json
 │   ├── themes_gtk.json, themes_icons.json, themes_cursors.json
 │   ├── theme_config_recommended.json  # Config thème par défaut (Breeze Dark)
-│   └── profiles/            # Profils d'installation (base, gaming, dev, etc.)
+│   ├── themes_kvantum.json  # Catalogue thèmes Kvantum (Catppuccin, Layan, KvDark)
+│   └── profiles/            # Profils d'installation
 │       ├── base.json, gaming.json, dev.json, multimedia.json, office.json
 │       ├── docker.json, distrobox.json, browsers.json, privacy.json
 │       ├── vpn.json, system.json, amd.json, nvidia.json
+│       ├── communication.json  # Messageries chiffrees (Signal/Element/LocalSend/Discord)
 │       ├── htpc.json        # Variant Steam-HTPC (Kodi, gamescope)
 │       └── handheld.json    # Variant Handheld type Steam Deck (DeckyLoader via Tweak Tool)
 │
@@ -136,8 +145,16 @@ nobara_kde_forge/
 │       └── js/app.js
 │
 └── tests/                   # Tests pytest
-    ├── test_schemas.py      # Validation Pydantic round-trip sur tous les configs
-    └── test_app_smoke.py    # Boot Flask + ping endpoints
+    ├── test_schemas.py            # Validation Pydantic round-trip sur tous les configs
+    ├── test_app_smoke.py          # Boot Flask + ping endpoints
+    ├── test_security.py           # Host/Origin/CSRF + lockfile (signaux SIGTERM)
+    ├── test_sandbox.py            # bwrap wrapper + looks_dangerous patterns
+    ├── test_power.py              # Detection batterie sysfs
+    ├── test_kde_backup.py         # Cycle backup KDE + path traversal + tar malicieux
+    ├── test_plasma_tweaks.py      # clear_caches + reset (mocke kstart6/kquitapp6)
+    ├── test_services_manager.py   # Whitelist + parsing systemctl mocke
+    ├── test_audio_tweaks.py       # Drop-in PipeWire/WirePlumber user-level
+    └── test_system_info.py        # Parsing OS release/kernel patches/btrfs/zram + cache
 ```
 
 ## Différences clés avec minty_forge
@@ -154,6 +171,36 @@ nobara_kde_forge/
 | Thèmes supplémentaires | — | Plasma themes, Kvantum themes |
 | Repos externes | PPA | COPR |
 | Paquets VPN UI | `*-gnome` | `plasma-nm-*` |
+
+## Features post-port (au-dela du port minty_forge)
+
+### Backup config KDE
+Sauvegarde whitelistee (15 fichiers : kdeglobals, kwinrc, plasmarc, panel layout, raccourcis, Kvantum, etc.) en tar.gz horodate dans `~/.local/share/nobaraforgekde/backups/`. Etiquette optionnelle. Restauration verifie chaque membre du tar contre la whitelist (defense en profondeur). Routes `/api/kde/backups/{create,restore,delete,list}`. UI : section "Sauvegardes config bureau" sous KDE Settings.
+
+### Tweaks rapides ([routes/tweaks.py](routes/tweaks.py))
+Trois sous-blocs :
+- **Reparation Plasma** : reset plasmashell (kquitapp6 → clear ~/.cache/plasma* → kstart6 detache), vidage caches generaux
+- **Services systemd** : toggles pour `fstrim.timer`/`bluetooth`/`cups`/`sshd`/`firewalld` via `sudo -n systemctl` (whitelist stricte cote Python)
+- **Audio** : sample rate PipeWire (44k/48k/96k/192k) + codecs BT premium (LDAC/aptX-HD/AAC). Drop-in user-level dans `~/.config/{pipewire,wireplumber}/.conf.d/` (pas de sudo).
+
+### Panneau "Identite systeme Nobara" ([utils/system_info.py](utils/system_info.py))
+Detecte au demarrage et affiche en pills colorees :
+- OS + kernel + patches detectes (CachyOS/BORE/NTSYNC/PREEMPT_DYN via parsing `/boot/config-<kernel>`)
+- Plasma + Mesa + session (Wayland/X11)
+- LSM list (apparmor/landlock/bpf/...) + statut SELinux
+- Sysctls gaming Nobara (`split_lock_mitigate`, `vm.max_map_count`, `tcp_mtu_probing`)
+- Btrfs racine (subvol/compress/discard) + zram
+
+Lecture pure (`/etc/os-release`, `/proc/mounts`, `/proc/swaps`, `/sys/kernel/security/lsm`, `sysctl`). Cache 30s. Route `/api/system/info`. Permet a l'utilisateur de **voir ce que Nobara fait deja**, evitant la duplication de tweaks.
+
+### Indicateur "failed services" dans la status-bar
+`systemctl --failed --no-legend` count → status item vert (0) ou rouge (≥1). Diagnostic immediat des units en erreur sans ouvrir un terminal.
+
+### Catalogue Kvantum ([configs/themes_kvantum.json](configs/themes_kvantum.json))
+4eme catalogue de themes (avec GTK/icones/curseurs). Install via git clone + `cp -r src/<variant> ~/.config/Kvantum/`. Routes themes etendues, theme manager deja compatible.
+
+### Mesa freeworld (specifique Nobara/RPMFusion)
+Profil `amd.json` utilise les variantes `-freeworld` (`mesa-vulkan-drivers-freeworld`, `mesa-va-drivers-freeworld`, `mesa-vdpau-drivers-freeworld`). Ces paquets incluent les codecs proprietaires (h264/h265/AV1/MPEG-2) retires des paquets standard pour raisons de brevets US. **Le paquet `mesa-vdpau-drivers` standard n'existe plus** dans les depots Nobara.
 
 ## Conventions
 
