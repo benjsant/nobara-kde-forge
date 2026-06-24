@@ -3,6 +3,7 @@
 Resout les bugs de panel/widgets que tout utilisateur KDE finit par rencontrer
 (barre des taches qui ne repond plus, widgets geles, miniatures cassees).
 """
+import contextlib
 import shutil
 import subprocess
 import time
@@ -18,15 +19,13 @@ _CACHE_NAMES = [
 
 
 def _dir_size(path):
-    """Taille recursive d'un dossier en octets (best-effort)."""
+    """Taille recursive d'un dossier en octets (meilleur effort)."""
     total = 0
     try:
         for p in path.rglob("*"):
             if p.is_file():
-                try:
+                with contextlib.suppress(OSError):
                     total += p.stat().st_size
-                except OSError:
-                    pass
     except OSError:
         pass
     return total

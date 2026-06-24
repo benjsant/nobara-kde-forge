@@ -65,8 +65,9 @@ def test_lsm_list_parsing(monkeypatch):
 
 
 def test_selinux_state_from_config(monkeypatch):
-    from utils import system_info as si
     import subprocess
+
+    from utils import system_info as si
     # getenforce indisponible -> tombe sur le fichier
     def fake_run(cmd, **kw):
         raise FileNotFoundError("getenforce absent")
@@ -150,8 +151,9 @@ def test_gather_uses_cache(monkeypatch):
 
 def test_sysctl_check_with_missing_sysctl(monkeypatch):
     """Si sysctl absent du systeme, doit retourner dict avec None."""
-    from utils import system_info as si
     import subprocess
+
+    from utils import system_info as si
     def fake_run(cmd, **kw):
         raise FileNotFoundError("sysctl absent")
     monkeypatch.setattr(subprocess, "run", fake_run)

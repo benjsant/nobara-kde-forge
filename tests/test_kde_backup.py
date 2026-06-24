@@ -196,7 +196,6 @@ def test_malicious_tar_members_skipped(backup_mod, tmp_path):
 
     # Cree un tar legitime puis on s'assure que les membres hors whitelist seraient ignores
     info = mod.create_backup(label="legit")
-    target = mod.BACKUP_DIR / info["filename"]
 
     # Reconstruit un tar avec des membres dangereux + un legit
     evil_tar = mod.BACKUP_DIR / info["filename"]
