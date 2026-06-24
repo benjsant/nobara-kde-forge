@@ -44,6 +44,17 @@ def get_configured_sample_rate():
     return int(m.group(1)) if m else None
 
 
+def _atomic_write_text(path, content):
+    """Ecrit `content` dans `path` de maniere atomique (tmp + os.replace).
+
+    Evite de corrompre la config PipeWire si le process crash en cours d'ecriture
+    (PipeWire refuse parfois de demarrer avec un fichier .conf tronque).
+    """
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(content)
+    tmp.replace(path)
+
+
 def set_sample_rate(rate):
     """Ecrit le drop-in PipeWire avec le rate demande. Leve ValueError si invalide."""
     if rate not in ALLOWED_RATES:
@@ -58,7 +69,7 @@ def set_sample_rate(rate):
         f"    default.clock.allowed-rates = [ {allowed_str} ]\n"
         "}\n"
     )
-    _PIPEWIRE_CONF.write_text(content)
+    _atomic_write_text(_PIPEWIRE_CONF, content)
     return True
 
 
@@ -95,7 +106,7 @@ def set_bt_premium_codecs(enable):
             " hsp_hs hsp_ag hfp_hf hfp_ag ]\n"
             "}\n"
         )
-        _WIREPLUMBER_BT_CONF.write_text(content)
+        _atomic_write_text(_WIREPLUMBER_BT_CONF, content)
     elif _WIREPLUMBER_BT_CONF.exists():
         _WIREPLUMBER_BT_CONF.unlink()
     return True

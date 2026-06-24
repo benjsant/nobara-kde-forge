@@ -2,10 +2,13 @@
 """Suivi persistant des actions NobaraForgeKDE avec rollback."""
 
 import json
+import logging
 import threading
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
+
+_logger = logging.getLogger("nobaraforgekde.state")
 
 # Types d'actions supportes
 ACTION_DNF_INSTALL = "dnf_install"
@@ -142,10 +145,10 @@ class StateManager:
                         self._execute_rollback(entry)
                         rolled_back.append(entry)
                     except StateError as e:
-                        print(f"[WARN] Rollback echoue pour '{entry.target}': {e}")
+                        _logger.warning(f"Rollback echoue pour '{entry.target}': {e}")
                         skipped.append(entry)
                 else:
-                    print(f"[WARN] Ignore '{entry.target}' (pas de rollback, action={entry.action})")
+                    _logger.warning(f"Ignore '{entry.target}' (pas de rollback, action={entry.action})")
                     skipped.append(entry)
 
             rolled_back_ids = {e.id for e in rolled_back}
@@ -212,7 +215,7 @@ class StateManager:
             self._entries = [StateEntry.from_dict(e) for e in data.get("entries", [])]
             self._next_id = data.get("next_id", len(self._entries) + 1)
         except (json.JSONDecodeError, KeyError, TypeError) as e:
-            print(f"[WARN] StateManager: fichier corrompu ({e}), reinitialisation.")
+            _logger.warning(f"StateManager: fichier corrompu ({e}), reinitialisation.")
             self._entries = []
             self._next_id = 1
             self._save()
@@ -229,7 +232,7 @@ class StateManager:
                 json.dump(data, f, indent=2, ensure_ascii=False)
             tmp.replace(self.state_file)
         except OSError as e:
-            print(f"[ERROR] StateManager: echec sauvegarde : {e}")
+            _logger.error(f"StateManager: echec sauvegarde : {e}")
 
 
 # Singleton partage
