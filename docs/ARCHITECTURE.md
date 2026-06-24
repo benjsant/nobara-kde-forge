@@ -28,7 +28,7 @@ Vue d'ensemble technique de NobaraForgeKDE pour les contributeurs.
 | Framework web | Flask | 3.0+ |
 | Validation | Pydantic | 2.0+ |
 | Frontend | HTML + CSS + Vanilla JS + Alpine.js | Alpine 3.13.10 (CDN) |
-| Templates | Jinja2 (intégré Flask) | — |
+| Templates | Jinja2 (intégré Flask) | - |
 | Tests | pytest | 8.0+ |
 | Lint | ruff | 0.8+ |
 | Build | uv (Astral) | system DNF prioritaire |
@@ -115,7 +115,7 @@ nobara-kde-forge/
 │   ├── themes.py               # /api/themes/* (catalog, install)
 │   ├── tweaks.py               # /api/tweaks/* (plasma, cache, services, audio)
 │   ├── system.py               # /api/system/firewall* (firewalld)
-│   ├── login_manager.py        # /api/sddm/* (Plasma Login Manager — alias hérité)
+│   ├── login_manager.py        # /api/sddm/* (Plasma Login Manager - alias hérité)
 │   ├── nobara_tools.py         # /api/nobara/* (welcome, driver-manager, etc.)
 │   └── state_routes.py         # /api/state/* (rollback)
 │
@@ -230,7 +230,7 @@ nobara-kde-forge/
 3. uv sync (synchro deps dans .venv/)
 4. sudo -v (cache passwd) + background renouvelle toutes les 50s
 5. Installer sassc, git si absents
-6. Créer /etc/sudoers.d/nobaraforgekde (NOPASSWD pour firewall-cmd) — auto-cleanup à la sortie
+6. Créer /etc/sudoers.d/nobaraforgekde (NOPASSWD pour firewall-cmd) - auto-cleanup à la sortie
 7. qdbus Inhibit (anti-veille)
 8. trap cleanup EXIT (nettoyage)
 9. uv run python nobara_kde_forge.py
@@ -251,11 +251,11 @@ nobara-kde-forge/
 
 ```
 1. Import des 9 blueprints
-2. register_security(app, port=5000) — middleware AVANT blueprints
+2. register_security(app, port=5000) - middleware AVANT blueprints
 3. app.register_blueprint(...) × 9
 4. main() :
-   a. lockfile.acquire() — leve LockfileError si autre instance vivante
-   b. install_signal_handlers() — SIGTERM/SIGINT nettoient le lock
+   a. lockfile.acquire() - leve LockfileError si autre instance vivante
+   b. install_signal_handlers() - SIGTERM/SIGINT nettoient le lock
    c. app.run(host='127.0.0.1', port=5000, debug=False, threaded=True)
 ```
 
@@ -299,7 +299,7 @@ Exemple : utilisateur sélectionne `gaming` + `multimedia` et clique "Installer"
 
 6. Dans le thread (run()):
    a. (Optionnel) timeshift_create_snapshot(...) si demandé
-   b. dnf_update() — dnf check-update (pas upgrade)
+   b. dnf_update() - dnf check-update (pas upgrade)
    c. seen_apt, seen_flatpak, seen_external = set(), set(), set()
    d. Pour chaque profil dans l'ordre :
       install_profile(slug, seen_apt, seen_flatpak, seen_external)
@@ -326,18 +326,18 @@ Exemple : utilisateur sélectionne `gaming` + `multimedia` et clique "Installer"
 
 | Thread | Rôle | Daemon ? |
 |---|---|---|
-| Main (Flask) | Werkzeug serveur multithread | — |
+| Main (Flask) | Werkzeug serveur multithread | - |
 | Worker (install profil) | Spawn par route, exécute le subprocess DNF/Flatpak | ✓ |
 | SSE generator | Yield depuis `log_queue.get(timeout=1)` | (per-request) |
-| Sudo keeper (bash) | `(while true; do sudo -n true; sleep 50; done)` | — |
+| Sudo keeper (bash) | `(while true; do sudo -n true; sleep 50; done)` | - |
 | Browser opener | Délai 2s puis `webbrowser.open(URL)` | ✓ |
 
 ### Locks
 
-- **`task_lock`** (threading.Lock) dans `routes/shared.py` — exclusivité d'une tâche d'installation
-- **`_process_lock`** (threading.Lock) dans `routes/shared.py` — accès à `_current_process` (référence subprocess actif, pour cancel)
-- **`StateManager._lock`** (threading.Lock) — accès aux entries du state
-- **`_manager_lock`** (threading.Lock) — création singleton de StateManager
+- **`task_lock`** (threading.Lock) dans `routes/shared.py` - exclusivité d'une tâche d'installation
+- **`_process_lock`** (threading.Lock) dans `routes/shared.py` - accès à `_current_process` (référence subprocess actif, pour cancel)
+- **`StateManager._lock`** (threading.Lock) - accès aux entries du state
+- **`_manager_lock`** (threading.Lock) - création singleton de StateManager
 
 ### Verrous inter-process
 
@@ -574,7 +574,7 @@ Fallback transparent si `bwrap` absent.
 
 ## Pour aller plus loin
 
-- [docs/API.md](API.md) — référence des 47 endpoints REST
-- [docs/SECURITY.md](SECURITY.md) — détails sur le modèle de sécurité
-- [docs/CONTRIBUTING.md](CONTRIBUTING.md) — comment ajouter un profil/thème/route
-- [CLAUDE.md](../CLAUDE.md) — guide rapide pour AI assistants
+- [docs/API.md](API.md) - référence des 47 endpoints REST
+- [docs/SECURITY.md](SECURITY.md) - détails sur le modèle de sécurité
+- [docs/CONTRIBUTING.md](CONTRIBUTING.md) - comment ajouter un profil/thème/route
+- [CLAUDE.md](../CLAUDE.md) - guide rapide pour AI assistants

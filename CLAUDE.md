@@ -39,14 +39,14 @@ GitHub Actions ([.github/workflows/ci.yml](.github/workflows/ci.yml)) : matrix P
 
 - **Lock file global** ([utils/lockfile.py](utils/lockfile.py)) : `$XDG_RUNTIME_DIR/nobaraforgekde.lock` (fallback `/tmp/`) contient le PID Flask. Au démarrage : si le PID est vivant → refus avec exit 2. Stale (PID mort) → écrasé. `atexit` retire le lock si PID match. Évite que deux UI se marchent dessus sur DNF lock / `data/state.json`.
 - **Anti-CSRF / DNS-rebinding** ([utils/security.py](utils/security.py)) :
-  - Header `Host` doit être `localhost[:port]` ou `127.0.0.1[:port]` — bloque DNS rebinding (sinon 421).
-  - Sur POST/PUT/DELETE : `Origin` ou `Referer` doit avoir un host autorisé — bloque CSRF cross-origin (sinon 403).
+  - Header `Host` doit être `localhost[:port]` ou `127.0.0.1[:port]` - bloque DNS rebinding (sinon 421).
+  - Sur POST/PUT/DELETE : `Origin` ou `Referer` doit avoir un host autorisé - bloque CSRF cross-origin (sinon 403).
   - GET reste ouvert (favoris/refresh navigateur).
 - **Sandbox des commandes user** ([utils/sandbox.py](utils/sandbox.py)) :
   - `bwrap` (bubblewrap) enveloppe les `cmd_user` des thèmes : filesystem read-only sauf `~/.themes`, `~/.icons`, `~/.local`, `~/.config` et le clone path. PID/UTS namespace isolés, network gardé.
-  - **Non applicable** aux commandes avec `sudo` (escalade root casse le user namespace) — pour celles-là, **audit log** systématique : la commande complète est affichée + `looks_dangerous()` détecte patterns suspects (eval, `/dev/tcp`, fork bomb, `rm -rf /`, pipes `curl|bash`, etc.).
+  - **Non applicable** aux commandes avec `sudo` (escalade root casse le user namespace) - pour celles-là, **audit log** systématique : la commande complète est affichée + `looks_dangerous()` détecte patterns suspects (eval, `/dev/tcp`, fork bomb, `rm -rf /`, pipes `curl|bash`, etc.).
   - Fallback transparent si `bwrap` absent.
-- **Backup config KDE** ([utils/kde_backup.py](utils/kde_backup.py)) : whitelist stricte de 15 fichiers (`kdeglobals`, `kwinrc`, `plasmarc`, panel layout, raccourcis, Kvantum, etc.) dans `~/.local/share/nobaraforgekde/backups/`. Filename validé par regex `^kde-\d{8}-\d{6}(-label)?\.tar\.gz$`. À la restauration, chaque membre du tar est filtré contre la whitelist + check `..`/chemin absolu — defense en profondeur.
+- **Backup config KDE** ([utils/kde_backup.py](utils/kde_backup.py)) : whitelist stricte de 15 fichiers (`kdeglobals`, `kwinrc`, `plasmarc`, panel layout, raccourcis, Kvantum, etc.) dans `~/.local/share/nobaraforgekde/backups/`. Filename validé par regex `^kde-\d{8}-\d{6}(-label)?\.tar\.gz$`. À la restauration, chaque membre du tar est filtré contre la whitelist + check `..`/chemin absolu - defense en profondeur.
 
 ### Pre-commit
 
@@ -81,13 +81,13 @@ nobara_kde_forge/
 │   ├── shared.py            # Logger SSE, fonctions communes, notify-send
 │   ├── legacy.py            # /api/status (+ failed_services), /api/system/info, /api/execute/*, /api/theme/*
 │   ├── profiles.py          # /api/profiles/*
-│   ├── kde_settings.py      # /api/kde/* — kwriteconfig6/kreadconfig6 + /api/kde/backups/* (cycle backup KDE)
-│   ├── login_manager.py     # /api/sddm/* — config plasma-login-manager (DM par defaut Nobara/Fedora KDE 42+) ; warning si SDDM detecte. URL gardee en /api/sddm/* pour compat front
-│   ├── system.py            # /api/system/* — firewalld (remplace ufw)
-│   ├── themes.py            # /api/themes/* — catalogues GTK/icon/cursor/kvantum
-│   ├── state_routes.py      # /api/state/* — rollback
-│   ├── nobara_tools.py      # /api/nobara/* — detection + launch des outils Nobara natifs (welcome, driver-manager, etc.)
-│   └── tweaks.py            # /api/tweaks/* — reset plasmashell, vidage caches, services systemd, audio PipeWire/BT
+│   ├── kde_settings.py      # /api/kde/* - kwriteconfig6/kreadconfig6 + /api/kde/backups/* (cycle backup KDE)
+│   ├── login_manager.py     # /api/sddm/* - config plasma-login-manager (DM par defaut Nobara/Fedora KDE 42+) ; warning si SDDM detecte. URL gardee en /api/sddm/* pour compat front
+│   ├── system.py            # /api/system/* - firewalld (remplace ufw)
+│   ├── themes.py            # /api/themes/* - catalogues GTK/icon/cursor/kvantum
+│   ├── state_routes.py      # /api/state/* - rollback
+│   ├── nobara_tools.py      # /api/nobara/* - detection + launch des outils Nobara natifs (welcome, driver-manager, etc.)
+│   └── tweaks.py            # /api/tweaks/* - reset plasmashell, vidage caches, services systemd, audio PipeWire/BT
 │
 ├── scripts/                 # Logique d'installation (appelés par les routes)
 │   ├── __init__.py
@@ -164,11 +164,11 @@ nobara_kde_forge/
 | Gestionnaire de paquets | `apt` / `dpkg-query` | `dnf` / `rpm -q` |
 | Desktop | Cinnamon (gsettings/dconf) | KDE Plasma (kwriteconfig6/kreadconfig6) |
 | Fichiers config desktop | schémas dconf | `kdeglobals`, `kwinrc`, `plasmarc`, `kcminputrc`, `kscreenlockerrc` |
-| Display manager | LightDM + slick-greeter (crudini) | plasma-login-manager (`/etc/plasmalogin.conf.d/`) — DM par defaut Nobara/Fedora KDE 42+, fork SDDM |
+| Display manager | LightDM + slick-greeter (crudini) | plasma-login-manager (`/etc/plasmalogin.conf.d/`) - DM par defaut Nobara/Fedora KDE 42+, fork SDDM |
 | Firewall | `ufw` | `firewalld` (`firewall-cmd`) |
 | Inhibition veille | gsettings Cinnamon power | `qdbus` D-Bus PowerManagement |
 | Mode sombre | gsettings derivation thème | `plasma-apply-colorscheme` |
-| Thèmes supplémentaires | — | Plasma themes, Kvantum themes |
+| Thèmes supplémentaires | - | Plasma themes, Kvantum themes |
 | Repos externes | PPA | COPR |
 | Paquets VPN UI | `*-gnome` | `plasma-nm-*` |
 
@@ -213,7 +213,7 @@ Profil `amd.json` utilise les variantes `-freeworld` (`mesa-vulkan-drivers-freew
 - `system_update()` ([utils/subprocess_utils.py](utils/subprocess_utils.py)) utilise `nobara-updater cli` si disponible (préserve les quirks de version Nobara) avec fallback `dnf check-update` + `dnf upgrade`
 - Le sudoers temporaire `/etc/sudoers.d/nobaraforgekde` (NOPASSWD pour `firewall-cmd`) est créé au lancement et **supprimé à la fermeture** via le `trap cleanup EXIT` du launcher bash. `./nobaraforgeKDE.sh --uninstall` permet de nettoyer manuellement tout fichier système restant
 - Snapshot timeshift optionnel avant `/api/profiles/install` : checkbox UI dans la section profils, visible uniquement si timeshift est dispo (`data.checks.timeshift`)
-- **Fonctionnalité laptop archivée** : la gestion PC portable (TLP, monitoring, mode dock, thermique, asusctl) est isolée dans la branche [`archive/laptop`](https://github.com/benjsant/nobara-kde-forge/tree/archive/laptop). La forge reste un simple utilitaire d'installation de paquets. Seul ajout côté laptop : avertissement batterie ([utils/power.py](utils/power.py)) — l'UI affiche une bannière "branchez le secteur" si l'utilisateur est sur batterie au moment de lancer une install. Détection via `/sys/class/power_supply/`, retourne `null` pour les desktops (indicateur caché).
+- **Fonctionnalité laptop archivée** : la gestion PC portable (TLP, monitoring, mode dock, thermique, asusctl) est isolée dans la branche [`archive/laptop`](https://github.com/benjsant/nobara-kde-forge/tree/archive/laptop). La forge reste un simple utilitaire d'installation de paquets. Seul ajout côté laptop : avertissement batterie ([utils/power.py](utils/power.py)) - l'UI affiche une bannière "branchez le secteur" si l'utilisateur est sur batterie au moment de lancer une install. Détection via `/sys/class/power_supply/`, retourne `null` pour les desktops (indicateur caché).
 
 ## Commandes utiles
 

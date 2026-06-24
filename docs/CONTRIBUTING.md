@@ -41,15 +41,15 @@ uv run python -c "import flask, pydantic; print('OK')"
 ### Outils requis
 
 - **Python 3.10+** (cible Nobara 41+ qui ship Python 3.13)
-- **uv** (Astral) — gestion des deps
-- **git** — versioning
-- **sassc**, **bwrap** — pour les tests de thèmes / sandbox
+- **uv** (Astral) - gestion des deps
+- **git** - versioning
+- **sassc**, **bwrap** - pour les tests de thèmes / sandbox
 
 ### Outils recommandés
 
-- **ruff** (installé via `uv sync --group dev`) — lint + autofix
-- **pre-commit** — hooks de validation
-- **pytest** — tests
+- **ruff** (installé via `uv sync --group dev`) - lint + autofix
+- **pre-commit** - hooks de validation
+- **pytest** - tests
 
 ---
 
@@ -113,7 +113,7 @@ uv run --group dev ruff format .
 
 ## Ajouter un profil
 
-**Le plus facile pour contribuer** — un nouveau profil = un JSON.
+**Le plus facile pour contribuer** - un nouveau profil = un JSON.
 
 ### 1. Créer le fichier
 
@@ -165,7 +165,7 @@ box, wrench, gamepad, cpu, gpu, code, film, shield, server, docker, office
 
 ### 3. Ajouter dans PROFILE_ORDER
 
-[routes/profiles.py:38](../routes/profiles.py#L38) — l'ordre détermine l'affichage dans l'UI :
+[routes/profiles.py:38](../routes/profiles.py#L38) - l'ordre détermine l'affichage dans l'UI :
 
 ```python
 PROFILE_ORDER = ["base", "office", "communication", "gaming", "htpc", "handheld",
@@ -438,7 +438,7 @@ uv run --group dev pytest tests/ --cov=utils --cov=routes
 
 - **`main`** : branche stable, recevoir les merges via PR (pas de push direct sauf cas urgents)
 - **`feature/<slug>`** : feature/refactor en cours, push à volonté
-- **`archive/<slug>`** : code historique (ex: `archive/laptop` — gestion PC portable archivée)
+- **`archive/<slug>`** : code historique (ex: `archive/laptop` - gestion PC portable archivée)
 
 ### Création d'une feature branch
 
@@ -551,4 +551,4 @@ Avant d'ouvrir une PR :
 - **Issue GitHub** pour bugs et features requests
 - **Discussion GitHub** pour les questions design / "comment on fait X"
 
-Le projet est petit, je (mainteneur unique) lis tout. Patience pour les reviews — c'est du bénévolat.
+Le projet est petit, je (mainteneur unique) lis tout. Patience pour les reviews - c'est du bénévolat.

@@ -3,7 +3,7 @@
 Tous les changements notables sont documentés ici.
 
 Format : [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
-Versioning : [SemVer](https://semver.org/lang/fr/) — `MAJOR.MINOR.PATCH`.
+Versioning : [SemVer](https://semver.org/lang/fr/) - `MAJOR.MINOR.PATCH`.
 
 ---
 
@@ -33,13 +33,13 @@ Pass de features majeur après le port initial depuis minty_forge.
   - `system` : `partitionmanager`
 
 #### Thèmes
-- **Catalogue Kvantum** ([configs/themes_kvantum.json](../configs/themes_kvantum.json)) — KvDark (system), Catppuccin-Mocha-Lavender, Layan
+- **Catalogue Kvantum** ([configs/themes_kvantum.json](../configs/themes_kvantum.json)) - KvDark (system), Catppuccin-Mocha-Lavender, Layan
 - Nouveau thème GTK : `Sweet-Dark` (EliverLara), `Layan-Dark` (vinceliuice), `Catppuccin-Mocha-Standard-Lavender-Dark` (Fausto-Korpsvart)
 - Nouveau curseur : `phinger-cursors-dark` (phisch)
 - Onglet "Kvantum" dans le catalogue UI ([routes/themes.py](../routes/themes.py))
 
 #### Backup config KDE
-- Nouveau module [utils/kde_backup.py](../utils/kde_backup.py) — backup/restore tar.gz de 15 fichiers config KDE (kdeglobals, kwinrc, plasmarc, panel layout, raccourcis, Kvantum, etc.)
+- Nouveau module [utils/kde_backup.py](../utils/kde_backup.py) - backup/restore tar.gz de 15 fichiers config KDE (kdeglobals, kwinrc, plasmarc, panel layout, raccourcis, Kvantum, etc.)
 - Stockage : `~/.local/share/nobaraforgekde/backups/`
 - Étiquettes optionnelles, validation regex stricte du filename
 - Rétention auto à 30 backups max (auto-prune)
@@ -47,14 +47,14 @@ Pass de features majeur après le port initial depuis minty_forge.
 - Section UI "Sauvegardes config bureau"
 
 #### Tweaks rapides
-- Nouveau module [utils/plasma_tweaks.py](../utils/plasma_tweaks.py) — reset plasmashell + clear caches
-- Nouveau module [utils/services_manager.py](../utils/services_manager.py) — toggle whitelist 5 services systemd (`fstrim.timer`, `bluetooth`, `cups`, `sshd`, `firewalld`)
-- Nouveau module [utils/audio_tweaks.py](../utils/audio_tweaks.py) — PipeWire sample rate (44.1/48/96/192 kHz) + codecs BT premium (LDAC/aptX-HD/AAC)
-- Nouveau blueprint [routes/tweaks.py](../routes/tweaks.py) — 7 routes
+- Nouveau module [utils/plasma_tweaks.py](../utils/plasma_tweaks.py) - reset plasmashell + clear caches
+- Nouveau module [utils/services_manager.py](../utils/services_manager.py) - toggle whitelist 5 services systemd (`fstrim.timer`, `bluetooth`, `cups`, `sshd`, `firewalld`)
+- Nouveau module [utils/audio_tweaks.py](../utils/audio_tweaks.py) - PipeWire sample rate (44.1/48/96/192 kHz) + codecs BT premium (LDAC/aptX-HD/AAC)
+- Nouveau blueprint [routes/tweaks.py](../routes/tweaks.py) - 7 routes
 - Section UI "Tweaks rapides" en 3 sous-blocs
 
 #### Panneau Identité système Nobara
-- Nouveau module [utils/system_info.py](../utils/system_info.py) — détection kernel patches (CachyOS/BORE/NTSYNC/PREEMPT_DYN via `/boot/config-<kernel>`), LSM, SELinux, sysctls gaming, btrfs, zram
+- Nouveau module [utils/system_info.py](../utils/system_info.py) - détection kernel patches (CachyOS/BORE/NTSYNC/PREEMPT_DYN via `/boot/config-<kernel>`), LSM, SELinux, sysctls gaming, btrfs, zram
 - Route `/api/system/info` (cache 30s)
 - Section UI avec pills violet/gris
 
@@ -89,7 +89,7 @@ Pass de features majeur après le port initial depuis minty_forge.
 #### Bugs Nobara compatibility (paquets supprimés/renommés)
 - `latte-dock` retiré (n'existe plus sur Fedora 38+)
 - `com.mattjakeman.ExtensionManager` retiré du `flatpak.json` (outil GNOME, inutile sur KDE)
-- `mscore-fonts-all` retiré (n'existe pas sur Fedora — héritage Mint)
+- `mscore-fonts-all` retiré (n'existe pas sur Fedora - héritage Mint)
 - `numlockx` retiré du profil `base` (outil X11, ineffective sur Wayland qui est défaut)
 - `joystickwake` retiré du profil `handheld` (sur PyPI seulement, pas dans les dépôts RPM)
 
@@ -97,14 +97,14 @@ Pass de features majeur après le port initial depuis minty_forge.
 - `dnf config-manager --add-repo` (syntaxe DNF4) remplacé par `curl -sSLo` pour Docker CE et Brave Browser
 
 #### Launcher
-- `acpi` retiré de l'auto-install (jamais utilisé — `utils/power.py` lit directement sysfs)
+- `acpi` retiré de l'auto-install (jamais utilisé - `utils/power.py` lit directement sysfs)
 
 #### State manager (post-audit)
 - `print()` calls remplacés par `logging.getLogger("nobaraforgekde.state")` (apparaissent dans le stream SSE + le log fichier)
 
 ### Sécurité
 
-- **Backup KDE — defense en profondeur** : whitelist + validation tar (anti path-traversal `..`, anti chemin absolu, regex filename strict)
+- **Backup KDE - defense en profondeur** : whitelist + validation tar (anti path-traversal `..`, anti chemin absolu, regex filename strict)
 - **Services systemd** : whitelist côté module ET route
 - **Audio** : drop-ins **user-level** uniquement (jamais dans `/etc/`)
 
@@ -142,10 +142,10 @@ Premier port complet depuis [minty_forge](https://github.com/benjsant/minty_forg
 
 ### Sécurité
 
-- **Lock file global** ([utils/lockfile.py](../utils/lockfile.py)) — PID file dans `$XDG_RUNTIME_DIR/nobaraforgekde.lock`, signal handlers SIGTERM/SIGINT pour nettoyage propre
-- **Anti-CSRF / DNS-rebinding** ([utils/security.py](../utils/security.py)) — middleware Host check + Origin/Referer sur POST/PUT/DELETE
-- **Sandbox bwrap** ([utils/sandbox.py](../utils/sandbox.py)) — commandes user-level des thèmes dans un user namespace, FS read-only sauf whitelist
-- **Audit log + détection patterns** — `looks_dangerous()` scanne 11 patterns suspects (eval, /dev/tcp, curl|bash, fork bomb, rm -rf /, etc.)
+- **Lock file global** ([utils/lockfile.py](../utils/lockfile.py)) - PID file dans `$XDG_RUNTIME_DIR/nobaraforgekde.lock`, signal handlers SIGTERM/SIGINT pour nettoyage propre
+- **Anti-CSRF / DNS-rebinding** ([utils/security.py](../utils/security.py)) - middleware Host check + Origin/Referer sur POST/PUT/DELETE
+- **Sandbox bwrap** ([utils/sandbox.py](../utils/sandbox.py)) - commandes user-level des thèmes dans un user namespace, FS read-only sauf whitelist
+- **Audit log + détection patterns** - `looks_dangerous()` scanne 11 patterns suspects (eval, /dev/tcp, curl|bash, fork bomb, rm -rf /, etc.)
 - **Avertissement batterie** sur laptop ([utils/power.py](../utils/power.py))
 
 ### Infrastructure
@@ -172,7 +172,7 @@ Branche dédiée non mergée dans main. Contient la **gestion PC portable étend
 
 Voir https://github.com/benjsant/nobara-kde-forge/tree/archive/laptop pour le code source.
 
-Le seul élément de "gestion laptop" gardé dans main est le **warning batterie** ([utils/power.py](../utils/power.py)) — banner UI quand l'utilisateur lance une install en étant sur batterie (risque de coupure mid-install).
+Le seul élément de "gestion laptop" gardé dans main est le **warning batterie** ([utils/power.py](../utils/power.py)) - banner UI quand l'utilisateur lance une install en étant sur batterie (risque de coupure mid-install).
 
 ---
 

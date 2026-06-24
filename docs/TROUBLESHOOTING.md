@@ -126,7 +126,7 @@ Puis re-clique sur l'action dans l'UI. Le cache reste actif ~15 min après chaqu
 
 ---
 
-### Toggle service échoue avec "Cache sudo expire — relancez l'app"
+### Toggle service échoue avec "Cache sudo expire - relancez l'app"
 
 Idem ci-dessus. Le toggle a tenté `sudo -n systemctl enable/disable --now <service>` et sudo a refusé sans password.
 
@@ -152,7 +152,7 @@ Le sudoers temporaire n'a pas été créé (échec sudo initial) ou a été supp
 # Vérifie
 sudo cat /etc/sudoers.d/nobaraforgekde
 # Devrait afficher :
-# # Genere par NobaraForgeKDE — supprime a la fermeture
+# # Genere par NobaraForgeKDE - supprime a la fermeture
 # user ALL=(ALL) NOPASSWD: /usr/bin/firewall-cmd
 
 # Si vide, recreate via relance du launcher
@@ -223,7 +223,7 @@ Défaut : 7200 secondes (2h).
 
 ### Profil installé mais des paquets ont échoué silencieusement
 
-L'install continue même si certains paquets échouent (par design — éviter qu'un paquet introuvable bloque tout le profil).
+L'install continue même si certains paquets échouent (par design - éviter qu'un paquet introuvable bloque tout le profil).
 
 **Vérification** :
 - Logs SSE dans l'UI affichent les `[ERROR]` au passage
@@ -369,7 +369,7 @@ mv "monvieuxbackup.tar.gz" "kde-20250101-120000-recovered.tar.gz"
 
 ### Backup créé mais "Aucun fichier de config a sauvegarder"
 
-Aucun des 15 fichiers whitelisted n'existait dans `~/.config/` au moment du backup. Très rare — vérifie :
+Aucun des 15 fichiers whitelisted n'existait dans `~/.config/` au moment du backup. Très rare - vérifie :
 ```bash
 ls ~/.config/kdeglobals ~/.config/kwinrc
 ```
@@ -378,7 +378,7 @@ Si vide, tu n'as probablement jamais ouvert KDE Plasma sur ce compte (config pas
 
 ---
 
-### Restore ne change rien — KDE garde l'ancien état
+### Restore ne change rien - KDE garde l'ancien état
 
 `_notify_kde_reload()` est déclenché après extraction, mais Plasma cache certains paramètres. Forcer le reload :
 
@@ -389,7 +389,7 @@ Si vide, tu n'as probablement jamais ouvert KDE Plasma sur ce compte (config pas
 
 ### Mon backup contient juste 2-3 fichiers, je m'attendais à plus
 
-Normal — seuls les fichiers existants au moment du backup sont inclus. Si tu n'utilises pas Kate, `katerc` n'existe pas → pas dans le backup. C'est attendu.
+Normal - seuls les fichiers existants au moment du backup sont inclus. Si tu n'utilises pas Kate, `katerc` n'existe pas → pas dans le backup. C'est attendu.
 
 Liste des 15 fichiers couverts : voir [docs/USER_GUIDE.md#sauvegardes-config-bureau](USER_GUIDE.md#sauvegardes-config-bureau).
 
@@ -422,7 +422,7 @@ journalctl --user -u plasma-* --since "5 min ago"
 
 ### Toggle d'un service "non installé"
 
-L'UI grise les services absents — pas de bouton. Pour les installer :
+L'UI grise les services absents - pas de bouton. Pour les installer :
 
 | Service | Paquet |
 |---|---|
@@ -474,7 +474,7 @@ wpctl status | grep -A5 "Default Sink"
 
 ### "SDDM detecte" alors que tu es sur Nobara KDE 43
 
-Cas étrange — Nobara 43+ devrait avoir migré vers plasma-login-manager. Vérifie :
+Cas étrange - Nobara 43+ devrait avoir migré vers plasma-login-manager. Vérifie :
 
 ```bash
 systemctl status display-manager.service
@@ -553,7 +553,7 @@ rpm -q mesa-dri-drivers
 
 ---
 
-### Status-bar affiche "Services en erreur : 1" — où voir lequel ?
+### Status-bar affiche "Services en erreur : 1" - où voir lequel ?
 
 ```bash
 systemctl --failed

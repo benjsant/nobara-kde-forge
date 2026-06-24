@@ -24,7 +24,7 @@ Pour les requêtes mutatives (POST/PUT/DELETE) :
 | 400 | Bad request (paramètres invalides) |
 | 403 | Cross-origin rejected ou pas d'Origin/Referer |
 | 404 | Resource not found |
-| 409 | Conflict — tâche déjà en cours |
+| 409 | Conflict - tâche déjà en cours |
 | 421 | Host header non autorisé |
 | 500 | Server error (avec `error` field dans le body JSON) |
 
@@ -69,7 +69,7 @@ Pour les requêtes mutatives (POST/PUT/DELETE) :
 
 ### `GET /api/status`
 
-Status global de l'application — polling toutes les 5s par le frontend.
+Status global de l'application - polling toutes les 5s par le frontend.
 
 **Réponse** :
 ```json
@@ -98,7 +98,7 @@ Cache TTL : 8s côté serveur.
 
 ### `GET /api/system/info`
 
-Identité système Nobara détaillée — appelé une fois au load + sur "Rafraîchir".
+Identité système Nobara détaillée - appelé une fois au load + sur "Rafraîchir".
 
 **Réponse** :
 ```json
@@ -365,7 +365,7 @@ Analyse statique : conflits + warnings GPU.
     {"package": "X", "installed_by": ["A"], "removed_by": ["B"]}
   ],
   "warnings": [
-    "Profil NVIDIA selectionne mais GPU AMD detecte — risque de conflit."
+    "Profil NVIDIA selectionne mais GPU AMD detecte - risque de conflit."
   ],
   "gpu": "amd"
 }
@@ -683,7 +683,7 @@ Active ou désactive un service whitelisté.
 
 **Réponse** :
 ```json
-{ "success": true } | { "success": false, "error": "Cache sudo expire — relancez l'app ou tapez `sudo -v`" }
+{ "success": true } | { "success": false, "error": "Cache sudo expire - relancez l'app ou tapez `sudo -v`" }
 ```
 
 `400` si service hors whitelist.
@@ -942,6 +942,6 @@ curl -N -H "Host: localhost:5000" http://localhost:5000/api/logs/stream
 
 ## Authentification
 
-**Aucune** — l'app est mono-utilisateur et écoute sur `127.0.0.1` uniquement.
+**Aucune** - l'app est mono-utilisateur et écoute sur `127.0.0.1` uniquement.
 
 Le seul "auth" est le middleware anti-CSRF/Host check : un attaquant ne peut pas exploiter via DNS rebinding ou cross-origin POST. Voir [docs/SECURITY.md](SECURITY.md).

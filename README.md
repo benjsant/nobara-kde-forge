@@ -17,7 +17,7 @@ Interface web Flask sur `http://localhost:5000` (ou mode CLI). Installe paquets 
 
 Quand on installe une Nobara KDE, on a souvent les mêmes manipulations à faire après l'install : ajouter Steam si pas pris, basculer en mode sombre, installer son IDE préféré, configurer firewalld, mettre des thèmes Plasma cohérents, etc. NobaraForgeKDE rassemble ces actions dans une UI cochable avec rollback, backup config, et tweaks rapides.
 
-C'est un **outil de plus**, pas un remplacement de `nobara-welcome` ou `nobara-updater` — au contraire, il les intègre et les expose dans son UI.
+C'est un **outil de plus**, pas un remplacement de `nobara-welcome` ou `nobara-updater` - au contraire, il les intègre et les expose dans son UI.
 
 ---
 
@@ -62,7 +62,7 @@ uv run python nobara_kde_forge.py --profile gaming --dry-run
 |---|---|
 | `base` | Outils essentiels : htop/btop/bat/eza, sassc, kvantum, fastfetch, FiraCode, Flatseal, Warehouse |
 | `office` | Thunderbird, LibreOffice, xournalpp, OnlyOffice, Joplin, PDFSlicer |
-| `communication` | Signal, Element (Matrix), LocalSend, Discord — tous Flatpaks |
+| `communication` | Signal, Element (Matrix), LocalSend, Discord - tous Flatpaks |
 | `gaming` | Steam, gamemode, MangoHud, Heroic, Bottles, ProtonPlus, RetroDECK, solaar, gpu-screen-recorder |
 | `htpc` | Steam HTPC, Kodi, gamescope (mode salon) |
 | `handheld` | gamescope, goverlay, DeckyLoader (mode Steam Deck-like) |
@@ -116,13 +116,13 @@ Auto-détection GPU : le profil opposé (NVIDIA si AMD détecté, et vice versa)
 
 ### Outils Nobara natifs intégrés
 NobaraForgeKDE expose les outils Nobara existants dans son UI plutôt que de les dupliquer :
-- `nobara-welcome` — guide d'accueil (Discord, Steam, drivers)
-- `nobara-driver-manager` — NVIDIA, asusctl, xpadneo, Broadcom, ROCm
-- `nobara-codec-wizard` — codecs multimédia propriétaires
-- `nobara-drive-mount-manager` — automount partitions
-- `nobara-resolve-wizard` — diagnostic problèmes système
-- `nobara-sync` — synchro métadonnées repos
-- `nobara-updater` — utilisé par défaut pour les MAJ système (fallback DNF)
+- `nobara-welcome` - guide d'accueil (Discord, Steam, drivers)
+- `nobara-driver-manager` - NVIDIA, asusctl, xpadneo, Broadcom, ROCm
+- `nobara-codec-wizard` - codecs multimédia propriétaires
+- `nobara-drive-mount-manager` - automount partitions
+- `nobara-resolve-wizard` - diagnostic problèmes système
+- `nobara-sync` - synchro métadonnées repos
+- `nobara-updater` - utilisé par défaut pour les MAJ système (fallback DNF)
 
 ---
 
@@ -160,14 +160,14 @@ web_app.py                 # Application Flask + blueprints
 
 routes/                    # 9 blueprints, 47 endpoints REST
   ├─ legacy.py             # status, logs SSE, execute, theme, system info
-  ├─ profiles.py           # /api/profiles/* — install, dry-run, preflight
-  ├─ kde_settings.py       # /api/kde/* — kwriteconfig6 + backups
-  ├─ themes.py             # /api/themes/* — catalogues GTK/icons/cursors/kvantum
-  ├─ tweaks.py             # /api/tweaks/* — plasma reset, services, audio
-  ├─ system.py             # /api/system/* — firewalld
-  ├─ login_manager.py      # /api/sddm/* — Plasma Login Manager
-  ├─ nobara_tools.py       # /api/nobara/* — lancement outils Nobara natifs
-  └─ state_routes.py       # /api/state/* — rollback
+  ├─ profiles.py           # /api/profiles/* - install, dry-run, preflight
+  ├─ kde_settings.py       # /api/kde/* - kwriteconfig6 + backups
+  ├─ themes.py             # /api/themes/* - catalogues GTK/icons/cursors/kvantum
+  ├─ tweaks.py             # /api/tweaks/* - plasma reset, services, audio
+  ├─ system.py             # /api/system/* - firewalld
+  ├─ login_manager.py      # /api/sddm/* - Plasma Login Manager
+  ├─ nobara_tools.py       # /api/nobara/* - lancement outils Nobara natifs
+  └─ state_routes.py       # /api/state/* - rollback
 
 utils/                     # 16 modules : subprocess, state, theme_manager, security, sandbox, lockfile, kde_backup, plasma_tweaks, services_manager, audio_tweaks, system_info, power, validation, profile_loader, etc.
 
@@ -183,7 +183,7 @@ Détails complets : [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) et [CLAUDE.md](
 
 ## Sécurité
 
-- **Lock file global** (PID file dans `$XDG_RUNTIME_DIR`) — interdit deux instances simultanées
+- **Lock file global** (PID file dans `$XDG_RUNTIME_DIR`) - interdit deux instances simultanées
 - **Middleware anti-CSRF / anti-DNS-rebinding** : `Host` strict + `Origin`/`Referer` requis sur POST
 - **Sandbox bwrap** des commandes utilisateur (themes installés depuis git)
 - **Whitelist stricte** des services systemd toggleables, des fichiers de config KDE backupés
@@ -216,7 +216,7 @@ CI GitHub Actions : matrix Python 3.10 → 3.13, compile + ruff + pytest.
 
 ## Licence
 
-GPL-3.0 — voir [LICENSE](LICENSE).
+GPL-3.0 - voir [LICENSE](LICENSE).
 
 ## Contribuer
 

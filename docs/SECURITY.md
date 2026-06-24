@@ -37,7 +37,7 @@ NobaraForgeKDE est une application **locale, mono-utilisateur**, qui :
 | [Middleware anti-CSRF / DNS rebinding](#2-middleware-anti-csrf--dns-rebinding) | `utils/security.py` | DNS rebinding, CSRF cross-origin |
 | [Sandbox bwrap](#3-sandbox-bwrap) | `utils/sandbox.py` | Commandes user-level des thèmes |
 | [Audit log + détection patterns](#4-audit-log--détection-patterns-dangereux) | `utils/sandbox.py` | Commandes externes (sudo) où bwrap ne s'applique pas |
-| [Backup KDE — whitelist & validation tar](#5-backup-kde--whitelist--validation-tar) | `utils/kde_backup.py` | Path traversal, écrasement de fichiers arbitraires |
+| [Backup KDE - whitelist & validation tar](#5-backup-kde--whitelist--validation-tar) | `utils/kde_backup.py` | Path traversal, écrasement de fichiers arbitraires |
 | [Whitelist services systemd](#6-whitelist-services-systemd) | `utils/services_manager.py` | Toggle arbitraire de services système |
 | [Pas de `shell=True`](#7-pas-de-shelltrue) | `utils/subprocess_utils.py` | Command injection via interpolation |
 | [Drop-ins audio user-level](#8-drop-ins-audio-user-level) | `utils/audio_tweaks.py` | Pas d'écriture dans `/etc/` |
@@ -88,7 +88,7 @@ def install_signal_handlers():
 
 ### Tests
 
-[tests/test_security.py](../tests/test_security.py) — 5 tests :
+[tests/test_security.py](../tests/test_security.py) - 5 tests :
 - `acquire/release` idempotent même PID
 - Bloque si PID étranger vivant
 - Écrase si stale
@@ -129,12 +129,12 @@ Middleware Flask `before_request` qui :
 
 ### Limites
 
-- GET sont laissés passer (favoris, refresh navigateur). Une page distante peut lire les GET ? Non — CORS strict empêche le navigateur de lire la réponse cross-origin par défaut.
+- GET sont laissés passer (favoris, refresh navigateur). Une page distante peut lire les GET ? Non - CORS strict empêche le navigateur de lire la réponse cross-origin par défaut.
 - curl sans Origin/Referer est refusé sur POST → c'est volontaire (limite l'API aux requêtes navigateur)
 
 ### Tests
 
-[tests/test_security.py](../tests/test_security.py) — 7 tests Host + Origin :
+[tests/test_security.py](../tests/test_security.py) - 7 tests Host + Origin :
 - Foreign host rejected (4 cas : evil.com, IPs, etc.)
 - Valid host accepted (4 cas : localhost, 127.0.0.1, avec et sans port)
 - POST sans Origin/Referer → 403
@@ -209,7 +209,7 @@ Tout le reste du FS est **read-only**. Un `install.sh` qui essaie de toucher `~/
 
 ## 4. Audit log + détection patterns dangereux
 
-[utils/sandbox.py:35](../utils/sandbox.py#L35) — `looks_dangerous()`
+[utils/sandbox.py:35](../utils/sandbox.py#L35) - `looks_dangerous()`
 
 ### Problème
 
@@ -248,11 +248,11 @@ Les commandes externes des profils (`configs/profiles/*.json` → `external.cmd`
 
 ### Tests
 
-[tests/test_sandbox.py](../tests/test_sandbox.py) — 11 patterns testés en positive + negative.
+[tests/test_sandbox.py](../tests/test_sandbox.py) - 11 patterns testés en positive + negative.
 
 ---
 
-## 5. Backup KDE — whitelist & validation tar
+## 5. Backup KDE - whitelist & validation tar
 
 [utils/kde_backup.py](../utils/kde_backup.py)
 
@@ -266,7 +266,7 @@ Sans validation :
 
 ### Solution multicouche
 
-**Couche 1 — Filename strictement validé** :
+**Couche 1 - Filename strictement validé** :
 ```python
 _FILENAME_RE = re.compile(r'^kde-\d{8}-\d{6}(-[A-Za-z0-9_-]{1,32})?\.tar\.gz$')
 
@@ -280,7 +280,7 @@ def _validate_filename(filename):
     target.resolve().relative_to(BACKUP_DIR.resolve())  # leve ValueError si symlink escape
 ```
 
-**Couche 2 — Filtrage des membres tar** :
+**Couche 2 - Filtrage des membres tar** :
 ```python
 def _member_is_safe(member):
     name = member.name
@@ -293,11 +293,11 @@ def _member_is_safe(member):
     return member.isfile()  # pas un symlink, pas un dossier
 ```
 
-**Couche 3 — Whitelist stricte** (15 fichiers) : seuls les fichiers explicitement listés dans `CONFIG_FILES` sont extraits. Tout autre membre est silencieusement skippé (compté dans `skipped`).
+**Couche 3 - Whitelist stricte** (15 fichiers) : seuls les fichiers explicitement listés dans `CONFIG_FILES` sont extraits. Tout autre membre est silencieusement skippé (compté dans `skipped`).
 
 ### Limites
 
-- Si l'attaquant a écriture sur `~/.local/share/nobaraforgekde/backups/`, il pourrait écrire un tar valide avec des configs KDE modifiées (mais qui resteraient dans la whitelist). C'est dans le scope user — pas une élévation
+- Si l'attaquant a écriture sur `~/.local/share/nobaraforgekde/backups/`, il pourrait écrire un tar valide avec des configs KDE modifiées (mais qui resteraient dans la whitelist). C'est dans le scope user - pas une élévation
 - Pas de signature/HMAC sur les backups (overkill pour un outil mono-user)
 
 ### Tests
@@ -340,7 +340,7 @@ Vérification **dans le module ET dans la route** (defense en profondeur).
 
 ### Limites
 
-- L'utilisateur peut bien sûr toggle n'importe quel service au terminal — c'est volontaire de limiter l'UI
+- L'utilisateur peut bien sûr toggle n'importe quel service au terminal - c'est volontaire de limiter l'UI
 
 ---
 
@@ -369,7 +369,7 @@ Les `external.cmd` des profils sont des strings bash (Docker repo setup, etc.). 
 
 ### Limites
 
-- Cette protection est UNIQUEMENT pour les inputs runtime. Le contenu des JSON `configs/profiles/*.json` est sous le contrôle du développeur — pas une protection contre supply-chain attack du dépôt.
+- Cette protection est UNIQUEMENT pour les inputs runtime. Le contenu des JSON `configs/profiles/*.json` est sous le contrôle du développeur - pas une protection contre supply-chain attack du dépôt.
 
 ---
 
@@ -400,7 +400,7 @@ def _atomic_write_text(path, content):
 
 ### Limites
 
-- Aucune — c'est le pattern recommandé par PipeWire/WirePlumber upstream.
+- Aucune - c'est le pattern recommandé par PipeWire/WirePlumber upstream.
 
 ---
 
@@ -432,7 +432,7 @@ cleanup() {
 ### Limites
 
 - Si l'app crash avec SIGKILL → trap pas exécuté → sudoers reste. Mitigation : `./nobaraforgeKDE.sh --uninstall` nettoie manuellement.
-- Un local user qui a déjà sudo pourrait utiliser le NOPASSWD pour autre chose ? Non — c'est limité strictement à `/usr/bin/firewall-cmd`, et cet user a déjà sudo de toute façon.
+- Un local user qui a déjà sudo pourrait utiliser le NOPASSWD pour autre chose ? Non - c'est limité strictement à `/usr/bin/firewall-cmd`, et cet user a déjà sudo de toute façon.
 
 ---
 
@@ -473,7 +473,7 @@ Conséquence : tout champ inattendu **lève une `ValidationError`**. Visible :
 
 ### Lock task_lock
 
-[routes/shared.py](../routes/shared.py) — un `threading.Lock` empêche deux installs de tourner en parallèle :
+[routes/shared.py](../routes/shared.py) - un `threading.Lock` empêche deux installs de tourner en parallèle :
 
 ```python
 with task_lock:
@@ -486,7 +486,7 @@ Empêche deux clics rapides sur "Installer" de spawner deux subprocess concurren
 
 ### Atomic file writes
 
-`state.json`, `pipewire/wireplumber.conf` — tous via `tmp + replace`. Si crash mid-write, le fichier précédent reste intact.
+`state.json`, `pipewire/wireplumber.conf` - tous via `tmp + replace`. Si crash mid-write, le fichier précédent reste intact.
 
 ### Cap des fichiers à croissance illimitée
 

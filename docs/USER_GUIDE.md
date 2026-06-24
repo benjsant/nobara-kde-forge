@@ -35,9 +35,9 @@ Guide complet de l'interface NobaraForgeKDE, section par section.
 Au premier lancement, le launcher :
 
 1. **Vérifie Python 3.10+** (devrait toujours être OK sur Nobara/Fedora 41+)
-2. **Installe `uv` si absent** — priorité à `dnf install -y uv` (Nobara/Fedora ≥41), sinon script officiel astral.sh, sinon `pip --user uv`
-3. **`uv sync`** — synchronise les dépendances (Flask, Pydantic) dans un venv local `.venv/`
-4. **Demande sudo** — passwd cache maintenu en background pour la durée de la session
+2. **Installe `uv` si absent** - priorité à `dnf install -y uv` (Nobara/Fedora ≥41), sinon script officiel astral.sh, sinon `pip --user uv`
+3. **`uv sync`** - synchronise les dépendances (Flask, Pydantic) dans un venv local `.venv/`
+4. **Demande sudo** - passwd cache maintenu en background pour la durée de la session
 5. **Installe les outils requis** : `sassc`, `git` si absents
 6. **Crée un sudoers temporaire** `/etc/sudoers.d/nobaraforgekde` pour `firewall-cmd` sans mot de passe (nettoyé à la fermeture)
 7. **Inhibe la mise en veille** via `qdbus` PowerManagement (évite que le système s'endorme pendant une install)
@@ -100,10 +100,10 @@ Une rangée de 9 indicateurs sous le header, mis à jour toutes les 5 secondes :
 | **Internet** | Connectivité (ping fedoraproject.org:80) | Connecté / Pas d'internet |
 | **Sudo** | Cache sudo actif (`sudo -n true`) | Cache OK / Cache expiré |
 | **Python** | Python 3.10+ détecté | OK / version trop ancienne |
-| **DNF** | Nombre de paquets dans `configs/install.json` | — |
-| **Optionnel** | Nombre de paquets dans `configs/optional_install.json` | — |
-| **Flatpaks** | Nombre de Flatpaks dans `configs/flatpak.json` | — |
-| **Themes** | Nombre total de thèmes dans les catalogues | — |
+| **DNF** | Nombre de paquets dans `configs/install.json` | - |
+| **Optionnel** | Nombre de paquets dans `configs/optional_install.json` | - |
+| **Flatpaks** | Nombre de Flatpaks dans `configs/flatpak.json` | - |
+| **Themes** | Nombre total de thèmes dans les catalogues | - |
 | **Disque libre** | Espace libre sur `/` en Go | Vert si > 5 Go |
 | **Alimentation** | Batterie/secteur (laptop uniquement) | Secteur / Batterie |
 | **Services en erreur** | `systemctl --failed` count | Vert si 0, rouge sinon |
@@ -117,19 +117,19 @@ Si **Services en erreur** passe à un nombre rouge : ouvre un terminal et `syste
 
 Deux rangées de "pills" affichent ce que Nobara fait déjà pour toi :
 
-**Ligne 1 — Identité de base :**
-- `Nobara 43` — version OS
-- `Kernel 7.0.9 (CachyOS+BORE+NTSYNC+PREEMPT_DYN) HZ=1000` — kernel avec patches détectés (parsing `/boot/config-<kernel>`)
-- `Plasma 6.6.4` — version Plasma
-- `Mesa 26.1.0` — version Mesa
-- `KDE wayland` — session type
+**Ligne 1 - Identité de base :**
+- `Nobara 43` - version OS
+- `Kernel 7.0.9 (CachyOS+BORE+NTSYNC+PREEMPT_DYN) HZ=1000` - kernel avec patches détectés (parsing `/boot/config-<kernel>`)
+- `Plasma 6.6.4` - version Plasma
+- `Mesa 26.1.0` - version Mesa
+- `KDE wayland` - session type
 
-**Ligne 2 — Détails système :**
-- `LSM: lockdown+yama+apparmor+bpf+landlock` — Linux Security Modules actifs (extrait de `/sys/kernel/security/lsm`)
-- `SELinux: disabled` — état SELinux (Nobara désactive SELinux par défaut)
-- `Sysctl gaming: split_lock=0 max_map=ok mtu=on` — sysctls tunés gaming par Nobara
-- `btrfs /@ +zstd:1` — filesystem racine (compression activée ?)
-- `zram 8.0 Go` — RAM compressée en swap
+**Ligne 2 - Détails système :**
+- `LSM: lockdown+yama+apparmor+bpf+landlock` - Linux Security Modules actifs (extrait de `/sys/kernel/security/lsm`)
+- `SELinux: disabled` - état SELinux (Nobara désactive SELinux par défaut)
+- `Sysctl gaming: split_lock=0 max_map=ok mtu=on` - sysctls tunés gaming par Nobara
+- `btrfs /@ +zstd:1` - filesystem racine (compression activée ?)
+- `zram 8.0 Go` - RAM compressée en swap
 
 > **Pourquoi c'est utile** : ça te permet de voir ce que Nobara a déjà configuré pour ne pas faire de doublons (ex: si `Sysctl gaming` est déjà à `ok`, pas besoin de retoucher).
 
@@ -143,7 +143,7 @@ La section la plus grosse de l'UI. Chaque profil est une carte cliquable.
 
 ### Sélection de profils
 
-Clique sur une carte pour la cocher (✓ apparaît en haut à droite). Plusieurs profils peuvent être sélectionnés en même temps — les paquets en commun sont dédupliqués automatiquement.
+Clique sur une carte pour la cocher (✓ apparaît en haut à droite). Plusieurs profils peuvent être sélectionnés en même temps - les paquets en commun sont dédupliqués automatiquement.
 
 ### Boutons en haut
 
@@ -153,7 +153,7 @@ Clique sur une carte pour la cocher (✓ apparaît en haut à droite). Plusieurs
 | **Tout décocher** | Vide la sélection |
 | **Aperçu** | Dry-run : affiche ce qui serait installé sans rien faire. Indique status de chaque paquet (`to_install`/`installed`/`duplicate`/`absent`) |
 | **Pre-flight** | Analyse statique : compte les paquets à installer, détecte les **conflits** (un paquet à installer dans X et à supprimer dans Y) et les **warnings GPU** (ex: AMD profile + NVIDIA hardware) |
-| **Exporter** | Télécharge la sélection sous forme de JSON (`nobaraforgekde_profiles.json`) — utile pour partager une config |
+| **Exporter** | Télécharge la sélection sous forme de JSON (`nobaraforgekde_profiles.json`) - utile pour partager une config |
 | **Importer** | Charge un JSON exporté précédemment |
 
 ### Sélection fine d'un profil
@@ -162,7 +162,7 @@ Sur chaque carte, le bouton **Detail** ouvre une modale qui liste tous les paque
 
 ### Snapshot Timeshift
 
-Si timeshift est installé et configuré (`./nobaraforgeKDE.sh` détecte au démarrage), une checkbox apparaît sous les profils : **"Snapshot timeshift avant l'installation (recommandé pour rollback rapide)"**. Coche-la avant de lancer l'install — Timeshift en mode BTRFS prend ~5-10 secondes et permet un rollback complet du système.
+Si timeshift est installé et configuré (`./nobaraforgeKDE.sh` détecte au démarrage), une checkbox apparaît sous les profils : **"Snapshot timeshift avant l'installation (recommandé pour rollback rapide)"**. Coche-la avant de lancer l'install - Timeshift en mode BTRFS prend ~5-10 secondes et permet un rollback complet du système.
 
 ### Lancement de l'installation
 
@@ -192,13 +192,13 @@ Au démarrage, `lspci` est parsé pour détecter le GPU. Conséquences :
 
 Une grille de 7 boutons pour lancer les outils Nobara existants sans passer par un terminal :
 
-- **Nobara Welcome** — premier lancement, presets HTPC/handheld
-- **Driver Manager** — NVIDIA, asusctl, xpadneo, Broadcom, ROCm
-- **Drive Mount Manager** — automount partitions (fstab GUI)
-- **Codec Wizard** — codecs propriétaires (h264, h265…)
-- **Resolve Wizard** — diagnostic + auto-fix problèmes système
-- **Nobara Sync** — synchro métadonnées repos
-- **Nobara Updater** — mise à jour système
+- **Nobara Welcome** - premier lancement, presets HTPC/handheld
+- **Driver Manager** - NVIDIA, asusctl, xpadneo, Broadcom, ROCm
+- **Drive Mount Manager** - automount partitions (fstab GUI)
+- **Codec Wizard** - codecs propriétaires (h264, h265…)
+- **Resolve Wizard** - diagnostic + auto-fix problèmes système
+- **Nobara Sync** - synchro métadonnées repos
+- **Nobara Updater** - mise à jour système
 
 Si un outil n'est pas installé, le bouton est grisé avec un tooltip indiquant comment l'installer (`sudo dnf install nobara-*`).
 
@@ -255,37 +255,37 @@ Pour qu'un thème soit utilisable sur l'écran de connexion, il **doit être ins
 ~25 paramètres KDE Plasma exposés via `kwriteconfig6`/`kreadconfig6`. Organisés en grille de groupes.
 
 ### Apparence
-- **Thème GTK** — appliqué dans `kdeglobals` / `[General]` / `Name`
-- **Thème d'icônes** — `kdeglobals` / `[Icons]` / `Theme`
-- **Thème de curseur** + taille (24/32/36/48/64) — `kcminputrc` / `[Mouse]`
-- **Thème Plasma** — `plasmarc` / `[Theme]` / `name`
-- **Schéma de couleurs** — `kdeglobals` / `[General]` / `ColorScheme` (BreezeDark, BreezeLight, OrchisDark…)
-- **Thème Kvantum** — `~/.config/Kvantum/kvantum.kvconfig` / `[General]` / `theme`
+- **Thème GTK** - appliqué dans `kdeglobals` / `[General]` / `Name`
+- **Thème d'icônes** - `kdeglobals` / `[Icons]` / `Theme`
+- **Thème de curseur** + taille (24/32/36/48/64) - `kcminputrc` / `[Mouse]`
+- **Thème Plasma** - `plasmarc` / `[Theme]` / `name`
+- **Schéma de couleurs** - `kdeglobals` / `[General]` / `ColorScheme` (BreezeDark, BreezeLight, OrchisDark…)
+- **Thème Kvantum** - `~/.config/Kvantum/kvantum.kvconfig` / `[General]` / `theme`
 
 ### Polices
-- **Police générale** — `kdeglobals` / `[General]` / `font`
-- **Police fixe (terminal/code)** — `kdeglobals` / `[General]` / `fixed`
-- **Police titre fenêtres** — `kdeglobals` / `[WM]` / `activeFont`
+- **Police générale** - `kdeglobals` / `[General]` / `font`
+- **Police fixe (terminal/code)** - `kdeglobals` / `[General]` / `fixed`
+- **Police titre fenêtres** - `kdeglobals` / `[WM]` / `activeFont`
 
 ### Bureau / Fenêtres
-- **Nombre de bureaux virtuels** (1-20) — `kwinrc` / `[Desktops]` / `Number`
-- **Décoration fenêtres** — `kwinrc` / `[org.kde.kdecoration2]` / `theme`
-- **Boutons à gauche** / **à droite** — `[org.kde.kdecoration2]` / `ButtonsOnLeft`, `ButtonsOnRight`
-- **Animation de minimisation** — `kwinrc` / `[Plugins]` / `minimizeanimationEnabled`
-- **Simple clic** (vs double-clic) — `kdeglobals` / `[KDE]` / `SingleClick`
+- **Nombre de bureaux virtuels** (1-20) - `kwinrc` / `[Desktops]` / `Number`
+- **Décoration fenêtres** - `kwinrc` / `[org.kde.kdecoration2]` / `theme`
+- **Boutons à gauche** / **à droite** - `[org.kde.kdecoration2]` / `ButtonsOnLeft`, `ButtonsOnRight`
+- **Animation de minimisation** - `kwinrc` / `[Plugins]` / `minimizeanimationEnabled`
+- **Simple clic** (vs double-clic) - `kdeglobals` / `[KDE]` / `SingleClick`
 
 ### Veilleuse (Night Color)
-- **Activer** — `kwinrc` / `[NightColor]` / `Active`
-- **Température** (1700-6500K) — `[NightColor]` / `NightTemperature`
-- **Mode** — `[NightColor]` / `Mode`
+- **Activer** - `kwinrc` / `[NightColor]` / `Active`
+- **Température** (1700-6500K) - `[NightColor]` / `NightTemperature`
+- **Mode** - `[NightColor]` / `Mode`
 
 ### Écran de verrouillage
-- **Timeout** (minutes) — `kscreenlockerrc` / `[Daemon]` / `Timeout`
-- **Auto-lock** — `[Daemon]` / `Autolock`
+- **Timeout** (minutes) - `kscreenlockerrc` / `[Daemon]` / `Timeout`
+- **Auto-lock** - `[Daemon]` / `Autolock`
 
 ### Gaming (Plasma 6+ Wayland)
-- **VRR Policy** (0=Never, 1=Auto, 2=Always) — `kwinrc` / `[Wayland]` / `VrrPolicy`
-- **DRM Leasing** (pour VR Wayland) — `kwinrc` / `[Wayland]` / `WaylandDRMLease`
+- **VRR Policy** (0=Never, 1=Auto, 2=Always) - `kwinrc` / `[Wayland]` / `VrrPolicy`
+- **DRM Leasing** (pour VR Wayland) - `kwinrc` / `[Wayland]` / `WaylandDRMLease`
 
 ### Aperçu des modifications
 
@@ -419,7 +419,7 @@ Toutes les actions destructives (install/remove via DNF, Flatpak install, comman
 
 ### Vue d'ensemble
 
-La section affiche les N dernières actions (cap à 500 entrées max — les plus anciennes sont droppées).
+La section affiche les N dernières actions (cap à 500 entrées max - les plus anciennes sont droppées).
 
 Chaque ligne montre :
 - Type d'action (`dnf_install`, `dnf_remove`, `flatpak_install`, `external_install`)
@@ -435,11 +435,11 @@ Chaque ligne montre :
 | **Rafraîchir** | Recharge depuis `data/state.json` |
 | **Annuler dernière** | Exécute la `rollback_cmd` de la dernière action et retire l'entrée |
 | **Tout annuler** | Itère sur toutes les actions (en ordre inverse), exécute leurs rollback. Saute les actions sans rollback dispo |
-| **Effacer historique** | Vide `state.json` (sans rollback) — utile après cleanup manuel |
+| **Effacer historique** | Vide `state.json` (sans rollback) - utile après cleanup manuel |
 
 ### Limitations du rollback
 
-- **Commandes externes** (`external_install` — VSCode, Docker repo, etc.) n'ont **pas de rollback automatique** (metadata `manual_rollback: True`). Tu vois l'historique mais le rollback est à faire à la main.
+- **Commandes externes** (`external_install` - VSCode, Docker repo, etc.) n'ont **pas de rollback automatique** (metadata `manual_rollback: True`). Tu vois l'historique mais le rollback est à faire à la main.
 - **Configurations KDE** ne passent pas par le state_manager (utilise `kwriteconfig6` direct). Pour ces changements, utilise plutôt **Sauvegardes config bureau** (backup avant + restore).
 
 ---
@@ -472,10 +472,10 @@ Le panneau du bas affiche les logs en streaming SSE (Server-Sent Events). Tout c
 
 ### Niveaux de log
 
-- `[OK]` / `[INFO]` — succès, étapes normales
-- `[WARN]` — situations inhabituelles non bloquantes
-- `[ERROR]` — échecs
-- `[AUDIT]` — commande externe sur le point d'être exécutée (avec sa ligne complète + détection de patterns suspects)
+- `[OK]` / `[INFO]` - succès, étapes normales
+- `[WARN]` - situations inhabituelles non bloquantes
+- `[ERROR]` - échecs
+- `[AUDIT]` - commande externe sur le point d'être exécutée (avec sa ligne complète + détection de patterns suspects)
 
 ### Rotation
 
