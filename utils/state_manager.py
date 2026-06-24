@@ -20,6 +20,12 @@ VALID_ACTIONS = {
 
 DEFAULT_STATE_FILE = Path(__file__).parent.parent / "data" / "state.json"
 
+# Cap sur le nombre d'entrees gardees. Les plus anciennes sont droppees quand
+# on depasse. Evite que state.json grossisse a l'infini sur un usage long
+# (chaque install ajoute 1 entree, rollback aussi). 500 = ~plusieurs annees
+# d'usage normal couverts pour le rollback recent.
+MAX_ENTRIES = 500
+
 
 @dataclass
 class StateEntry:
@@ -83,6 +89,11 @@ class StateManager:
         with self._lock:
             self._entries.append(entry)
             self._next_id += 1
+            # Cap : drop les plus anciennes entrees si on depasse MAX_ENTRIES.
+            # Le rollback des entrees recentes reste possible, les vieilles
+            # actions ne sont de toute facon plus pertinentes.
+            if len(self._entries) > MAX_ENTRIES:
+                self._entries = self._entries[-MAX_ENTRIES:]
             self._save()
         return entry
 

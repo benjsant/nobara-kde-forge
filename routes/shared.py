@@ -6,6 +6,7 @@ import queue
 import subprocess
 import sys
 import threading
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 log_queue = queue.Queue(maxsize=1000)
@@ -38,10 +39,16 @@ class QueueHandler(logging.Handler):
             log_queue.put_nowait(self.format(record))
 
 
+# Rotation : 5 Mo par fichier, 3 sauvegardes => total max 20 Mo sur disque.
+# Evite que logs/nobaraforgekde.log atteigne plusieurs Go sur une longue duree
+# d'utilisation (chaque install/profile peut emettre des dizaines de lignes).
+_LOG_FILE = LOG_DIR / "nobaraforgekde.log"
+_file_handler = RotatingFileHandler(_LOG_FILE, maxBytes=5_000_000, backupCount=3, encoding="utf-8")
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[logging.FileHandler(LOG_DIR / "nobaraforgekde.log"), QueueHandler()]
+    handlers=[_file_handler, QueueHandler()],
 )
 logger = logging.getLogger("nobaraforgekde")
 

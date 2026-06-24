@@ -140,6 +140,54 @@ def test_list_backups_sorted_desc(backup_mod):
 # Tar member safety (defense en profondeur)
 # ---------------------------------------------------------------------------
 
+def test_max_backups_retention(backup_mod, monkeypatch):
+    """Apres MAX_BACKUPS atteint, les plus anciennes sont supprimees a la creation."""
+    mod, fake_home = backup_mod
+    config_dir = fake_home / ".config"
+    (config_dir / "kdeglobals").write_text("x")
+
+    # Reduit la limite pour rendre le test rapide
+    monkeypatch.setattr(mod, "MAX_BACKUPS", 3)
+
+    # Cree 5 backups, espaces dans le temps
+    import time
+    created = []
+    for i in range(5):
+        info = mod.create_backup(label=f"backup{i}")
+        created.append(info["filename"])
+        time.sleep(1.05)  # garantir mtime distinct (precision seconde)
+
+    backups = mod.list_backups()
+    assert len(backups) == 3, f"Devrait avoir 3 backups apres prune, a {len(backups)}"
+
+    # Les 3 plus recentes restent
+    remaining = {b["filename"] for b in backups}
+    assert created[-1] in remaining
+    assert created[-2] in remaining
+    assert created[-3] in remaining
+    # Les anciennes ont ete pruned
+    assert created[0] not in remaining
+    assert created[1] not in remaining
+
+    # Le compte pruned est rapporte par create_backup
+    info = mod.create_backup(label="another")
+    assert info["pruned"] == 1, f"Devrait avoir prune 1 entry, got {info['pruned']}"
+
+
+def test_no_prune_when_under_limit(backup_mod):
+    mod, fake_home = backup_mod
+    config_dir = fake_home / ".config"
+    (config_dir / "kdeglobals").write_text("x")
+
+    # MAX_BACKUPS par defaut = 30, on en cree 2
+    info1 = mod.create_backup(label="first")
+    info2 = mod.create_backup(label="second")
+
+    assert info1["pruned"] == 0
+    assert info2["pruned"] == 0
+    assert len(mod.list_backups()) == 2
+
+
 def test_malicious_tar_members_skipped(backup_mod, tmp_path):
     """Un tar malicieux avec membres hors whitelist ou avec .. doit etre filtre."""
     mod, fake_home = backup_mod

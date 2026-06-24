@@ -38,6 +38,11 @@ CONFIG_FILES = [
 
 BACKUP_DIR = Path.home() / ".local/share/nobaraforgekde/backups"
 
+# Garde au plus N sauvegardes les plus recentes. Les anciennes sont supprimees
+# automatiquement a chaque nouvelle creation pour eviter que le dossier ne
+# croisse indefiniment (1 backup/semaine pendant 5 ans = 260 fichiers).
+MAX_BACKUPS = 30
+
 # kde-YYYYMMDD-HHMMSS[-label].tar.gz   (label max 32 chars, alphanum + -_)
 _FILENAME_RE = re.compile(r'^kde-\d{8}-\d{6}(-[A-Za-z0-9_-]{1,32})?\.tar\.gz$')
 
@@ -110,6 +115,8 @@ def create_backup(label=None):
         backup_path.unlink(missing_ok=True)
         raise BackupError("Aucun fichier de config KDE a sauvegarder")
 
+    pruned = _prune_old_backups()
+
     return {
         "filename": name,
         "path": str(backup_path),
@@ -118,7 +125,26 @@ def create_backup(label=None):
         "size": backup_path.stat().st_size,
         "timestamp": timestamp,
         "label": safe_label,
+        "pruned": pruned,
     }
+
+
+def _prune_old_backups():
+    """Garde au plus MAX_BACKUPS sauvegardes (les plus recentes).
+
+    Retourne le nombre supprime. Robuste aux echecs OS (best-effort).
+    """
+    backups = list_backups()
+    if len(backups) <= MAX_BACKUPS:
+        return 0
+    deleted = 0
+    for entry in backups[MAX_BACKUPS:]:
+        try:
+            (BACKUP_DIR / entry["filename"]).unlink()
+            deleted += 1
+        except OSError:
+            pass
+    return deleted
 
 
 def list_backups():
