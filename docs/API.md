@@ -4,7 +4,6 @@ Référence complète des 47 endpoints REST de NobaraForgeKDE.
 
 **Base URL** : `http://localhost:5000`
 
----
 
 ## Conventions
 
@@ -38,7 +37,6 @@ Pour les requêtes mutatives (POST/PUT/DELETE) :
 }
 ```
 
----
 
 ## Sommaire des endpoints
 
@@ -63,7 +61,6 @@ Pour les requêtes mutatives (POST/PUT/DELETE) :
 
 **Total : 47 endpoints**
 
----
 
 ## Status & système
 
@@ -94,7 +91,6 @@ Status global de l'application - polling toutes les 5s par le frontend.
 
 Cache TTL : 8s côté serveur.
 
----
 
 ### `GET /api/system/info`
 
@@ -140,7 +136,6 @@ Identité système Nobara détaillée - appelé une fois au load + sur "Rafraîc
 
 Cache TTL : 30s côté serveur.
 
----
 
 ### `GET /api/system/firewall`
 
@@ -156,7 +151,6 @@ Status de firewalld.
 }
 ```
 
----
 
 ### `POST /api/system/firewall/enable` et `POST /api/system/firewall/disable`
 
@@ -167,7 +161,6 @@ Active ou désactive firewalld (`systemctl enable/disable --now firewalld`).
 { "success": true, "message": "Pare-feu active" }
 ```
 
----
 
 ## Logs
 
@@ -186,7 +179,6 @@ data: 2026-05-27 14:32:15 [WARN] flatpak ...
 
 Keepalive toutes les ~1s pour empêcher la connexion de fermer.
 
----
 
 ### `GET /api/logs/history`
 
@@ -197,7 +189,6 @@ Retourne les dernières 300 lignes du fichier `logs/nobaraforgekde.log`.
 { "lines": ["...", "...", ...] }
 ```
 
----
 
 ### `POST /api/logs/clear`
 
@@ -208,7 +199,6 @@ Vide la queue SSE en mémoire (ne touche pas au fichier disque).
 { "success": true }
 ```
 
----
 
 ## Tâches
 
@@ -220,7 +210,6 @@ Annule la tâche en cours (SIGKILL au subprocess).
 - `200` : `{"success": true}`
 - `409` : `{"success": false, "error": "Aucune tache en cours"}`
 
----
 
 ### `POST /api/execute/<action>`
 
@@ -235,13 +224,11 @@ Lance un script d'installation. **Actions valides** : `dnf_install`, `dnf_remove
 
 Le script est lancé via `python -m scripts.<action>` dans un thread séparé. Suivi via `/api/status` (`task.running`).
 
----
 
 ### `POST /api/execute/all`
 
 ⚠️ **Route héritée**, non appelée depuis l'UI actuelle. Lance la séquence complète : update système → DNF → optional → external → remove → flatpak → themes. Conservée pour scripting CLI.
 
----
 
 ## Profils
 
@@ -270,7 +257,6 @@ Liste tous les profils avec metadata.
 
 Cache TTL : 60s.
 
----
 
 ### `GET /api/profiles/<slug>`
 
@@ -294,7 +280,6 @@ Détail d'un profil (tous ses paquets).
 
 `404` si profil inconnu.
 
----
 
 ### `POST /api/profiles/install`
 
@@ -314,7 +299,6 @@ Lance l'installation de profils. **C'est l'endpoint principal**.
 - `404` : profil inconnu
 - `409` : tâche déjà en cours
 
----
 
 ### `POST /api/profiles/dry-run`
 
@@ -337,7 +321,6 @@ Aperçu sans installer.
 }
 ```
 
----
 
 ### `POST /api/profiles/preflight`
 
@@ -371,7 +354,6 @@ Analyse statique : conflits + warnings GPU.
 }
 ```
 
----
 
 ### `POST /api/profiles/install-custom`
 
@@ -389,13 +371,11 @@ Installation à la carte (sélection manuelle depuis la modale Detail).
 
 Au moins une liste doit être non-vide (400 sinon).
 
----
 
 ### `POST /api/profiles/export`
 
 ⚠️ **Route héritée**. Le frontend fait l'export côté client (Blob + download). Cette route retourne juste les slugs envoyés.
 
----
 
 ### `POST /api/profiles/import`
 
@@ -412,7 +392,6 @@ Valide un JSON importé : sépare les slugs valides des invalides.
 }
 ```
 
----
 
 ## Paquets optionnels
 
@@ -420,7 +399,6 @@ Valide un JSON importé : sépare les slugs valides des invalides.
 
 Liste les paquets de `configs/optional_install.json` avec statut `installed: true|false`.
 
----
 
 ## Thèmes
 
@@ -445,7 +423,6 @@ Catalogue complet (GTK + icons + cursors + Kvantum) avec statut `installed: true
 }
 ```
 
----
 
 ### `POST /api/themes/install`
 
@@ -468,7 +445,6 @@ Si `system: true` → install dans `/usr/share` (sudo). Sinon dans `~/.themes`, 
 - `404` : thème introuvable dans le catalogue
 - `409` : tâche en cours
 
----
 
 ## Thème recommandé (legacy)
 
@@ -476,7 +452,6 @@ Si `system: true` → install dans `/usr/share` (sudo). Sinon dans `~/.themes`, 
 
 État de la config thème recommandée (Breeze Dark par défaut, défini dans `configs/theme_config_recommended.json`).
 
----
 
 ### `POST /api/theme/apply_recommended` (legacy)
 
@@ -484,7 +459,6 @@ Applique la config recommandée.
 
 ⚠️ Ces 2 endpoints sont hérités du minty_forge, non appelés par l'UI actuelle. Conservés pour rétrocompatibilité scripting.
 
----
 
 ## KDE settings
 
@@ -514,7 +488,6 @@ Retourne tous les paramètres KDE courants + les thèmes disponibles.
 }
 ```
 
----
 
 ### `POST /api/kde/apply`
 
@@ -538,7 +511,6 @@ Validation : `num_desktops` (1-20), `night_light_temp` (1700-6500), `cursor_size
 
 **Réponse** : tâche async, suivre via `/api/status`.
 
----
 
 ### `POST /api/kde/dark-mode`
 
@@ -546,7 +518,6 @@ Bascule clair/sombre via `plasma-apply-colorscheme` (fallback `kwriteconfig6`).
 
 **Body** : `{"dark": true}` ou `{"dark": false}`
 
----
 
 ## KDE backups
 
@@ -571,7 +542,6 @@ Liste les sauvegardes triées par date desc.
 }
 ```
 
----
 
 ### `POST /api/kde/backups/create`
 
@@ -598,7 +568,6 @@ Crée un nouveau backup.
 
 `pruned` = nombre de vieilles sauvegardes supprimées (rétention 30 max).
 
----
 
 ### `POST /api/kde/backups/restore`
 
@@ -618,7 +587,6 @@ Restaure une sauvegarde.
 
 Sécurité : validation regex du filename + filtrage des membres tar contre whitelist + check `..`/chemin absolu. `_notify_kde_reload()` déclenché après extraction.
 
----
 
 ### `POST /api/kde/backups/delete`
 
@@ -626,7 +594,6 @@ Supprime une sauvegarde.
 
 **Body** : `{"filename": "kde-20260527-143000.tar.gz"}`
 
----
 
 ## Tweaks
 
@@ -634,7 +601,6 @@ Supprime une sauvegarde.
 
 `kquitapp6 plasmashell` → clear `~/.cache/plasma*` → `kstart6 plasmashell` (détaché).
 
----
 
 ### `POST /api/tweaks/cache/clear`
 
@@ -649,7 +615,6 @@ Vide `~/.cache/{thumbnails,krunner,icon-cache.kcache,ksycoca6,plasma*}`.
 }
 ```
 
----
 
 ### `GET /api/tweaks/services`
 
@@ -673,7 +638,6 @@ Liste les services systemd whitelistés avec leur statut.
 
 `raw_active` peut être `"missing"` si le service n'est pas installé.
 
----
 
 ### `POST /api/tweaks/services/toggle`
 
@@ -688,7 +652,6 @@ Active ou désactive un service whitelisté.
 
 `400` si service hors whitelist.
 
----
 
 ### `GET /api/tweaks/audio`
 
@@ -708,7 +671,6 @@ Active ou désactive un service whitelisté.
 `current_rate` = lu via `pw-metadata 0 clock.rate` (peut être `null` si PipeWire non démarré).
 `configured_rate` = lu du drop-in NobaraForgeKDE (peut être `null` si jamais configuré).
 
----
 
 ### `POST /api/tweaks/audio/rate`
 
@@ -726,7 +688,6 @@ Change le sample rate PipeWire.
 
 Écrit `~/.config/pipewire/pipewire.conf.d/10-nobaraforgekde-rate.conf` (atomique tmp+replace), puis `systemctl --user restart pipewire pipewire-pulse wireplumber`.
 
----
 
 ### `POST /api/tweaks/audio/bt-codecs`
 
@@ -736,13 +697,11 @@ Active/désactive les codecs BT premium (LDAC, aptX-HD, AAC).
 
 Crée/supprime `~/.config/wireplumber/wireplumber.conf.d/51-nobaraforgekde-bt-codecs.conf`.
 
----
 
 ## System & firewall
 
 Voir [Status & système](#status--système).
 
----
 
 ## Plasma Login Manager
 
@@ -769,7 +728,6 @@ Voir [Status & système](#status--système).
   }
   ```
 
----
 
 ### `POST /api/sddm/sync`
 
@@ -791,7 +749,6 @@ Synchronise la config plasma-login-manager avec le bureau actuel.
 }
 ```
 
----
 
 ## Outils Nobara
 
@@ -813,7 +770,6 @@ Liste les outils Nobara natifs avec leur disponibilité.
 
 7 outils whitelistés : `welcome`, `driver_manager`, `drive_mount_manager`, `codec_wizard`, `resolve_wizard`, `sync`, `updater`.
 
----
 
 ### `POST /api/nobara/launch/<tool_id>`
 
@@ -823,7 +779,6 @@ Lance un outil Nobara dans la session graphique (subprocess détaché).
 - `200` : `{"success": true, "message": "Nobara Welcome lance"}`
 - `404` : outil inconnu ou pas installé
 
----
 
 ## État / rollback
 
@@ -858,7 +813,6 @@ Vue de l'historique d'actions (cap à 500 entries).
 }
 ```
 
----
 
 ### `POST /api/state/rollback/last`
 
@@ -869,7 +823,6 @@ Annule la dernière action (exécute sa `rollback_cmd`).
 - `404` : aucune action à rollback
 - `500` : rollback impossible (commande inverse manquante ou échec d'exécution)
 
----
 
 ### `POST /api/state/rollback/all`
 
@@ -884,7 +837,6 @@ Annule toutes les actions en ordre inverse. Saute celles sans `rollback_cmd` (ex
 }
 ```
 
----
 
 ### `DELETE /api/state/clear`
 
@@ -892,7 +844,6 @@ Efface tout l'historique sans rollback.
 
 **Réponse** : `{"success": true}`
 
----
 
 ## App lifecycle
 
@@ -904,7 +855,6 @@ Arrête proprement le serveur Flask (envoie SIGTERM au process).
 
 Le handler SIGTERM nettoie le lockfile + sudoers temporaire (via le `trap cleanup EXIT` du bash launcher).
 
----
 
 ## Exemples curl
 
@@ -938,7 +888,6 @@ curl -X POST \
 curl -N -H "Host: localhost:5000" http://localhost:5000/api/logs/stream
 ```
 
----
 
 ## Authentification
 

@@ -2,7 +2,6 @@
 
 Détail des protections en place dans NobaraForgeKDE, leur raisonnement, et leurs limites.
 
----
 
 ## Contexte de menace
 
@@ -27,7 +26,6 @@ NobaraForgeKDE est une application **locale, mono-utilisateur**, qui :
 - Compromission du dépôt git Nobara/Astral/Mesa → pas notre problème
 - Compromission de mes commandes via `Bash` tool → l'utilisateur doit toujours review
 
----
 
 ## Sommaire des protections
 
@@ -44,7 +42,6 @@ NobaraForgeKDE est une application **locale, mono-utilisateur**, qui :
 | [Sudoers temporaire scopé](#9-sudoers-temporaire-scopé) | `nobaraforgeKDE.sh` | Élévation persistante, scope trop large |
 | [Validation Pydantic stricte](#10-validation-pydantic-stricte) | `schemas/` | Configs malformés ou champs inattendus |
 
----
 
 ## 1. Lock file global
 
@@ -95,7 +92,6 @@ def install_signal_handlers():
 - N'efface pas un lock détenu par autre
 - Signal handler retire le lock à SIGTERM (test dans process enfant)
 
----
 
 ## 2. Middleware anti-CSRF / DNS rebinding
 
@@ -143,7 +139,6 @@ Middleware Flask `before_request` qui :
 - POST avec Referer seulement → accepté (compat anciens navigateurs)
 - GET sans Origin → 200
 
----
 
 ## 3. Sandbox bwrap
 
@@ -205,7 +200,6 @@ Tout le reste du FS est **read-only**. Un `install.sh` qui essaie de toucher `~/
 - Inclut bien `--ro-bind`, `--share-net`, etc.
 - Whitelist writable paths injectés correctement
 
----
 
 ## 4. Audit log + détection patterns dangereux
 
@@ -250,7 +244,6 @@ Les commandes externes des profils (`configs/profiles/*.json` → `external.cmd`
 
 [tests/test_sandbox.py](../tests/test_sandbox.py) - 11 patterns testés en positive + negative.
 
----
 
 ## 5. Backup KDE - whitelist & validation tar
 
@@ -276,7 +269,7 @@ def _validate_filename(filename):
     target = BACKUP_DIR / filename
     if not target.exists() or not target.is_file():
         raise BackupError(...)
-    # Defense en profondeur : verifie que ca resolve bien dans BACKUP_DIR
+    # Validation multi-niveau : verifie que ca resolve bien dans BACKUP_DIR
     target.resolve().relative_to(BACKUP_DIR.resolve())  # leve ValueError si symlink escape
 ```
 
@@ -309,7 +302,6 @@ def _member_is_safe(member):
 - Tar malicieux : membres hors whitelist + `..` extraits dans `skipped`, pas créés
 - Retention 30 → vieilles backups pruned auto
 
----
 
 ## 6. Whitelist services systemd
 
@@ -336,13 +328,12 @@ def toggle_service(name, enable):
     ...
 ```
 
-Vérification **dans le module ET dans la route** (defense en profondeur).
+Vérification **dans le module ET dans la route** (validation multi-niveau).
 
 ### Limites
 
 - L'utilisateur peut bien sûr toggle n'importe quel service au terminal - c'est volontaire de limiter l'UI
 
----
 
 ## 7. Pas de `shell=True`
 
@@ -371,7 +362,6 @@ Les `external.cmd` des profils sont des strings bash (Docker repo setup, etc.). 
 
 - Cette protection est UNIQUEMENT pour les inputs runtime. Le contenu des JSON `configs/profiles/*.json` est sous le contrôle du développeur - pas une protection contre supply-chain attack du dépôt.
 
----
 
 ## 8. Drop-ins audio user-level
 
@@ -402,7 +392,6 @@ def _atomic_write_text(path, content):
 
 - Aucune - c'est le pattern recommandé par PipeWire/WirePlumber upstream.
 
----
 
 ## 9. Sudoers temporaire scopé
 
@@ -434,7 +423,6 @@ cleanup() {
 - Si l'app crash avec SIGKILL → trap pas exécuté → sudoers reste. Mitigation : `./nobaraforgeKDE.sh --uninstall` nettoie manuellement.
 - Un local user qui a déjà sudo pourrait utiliser le NOPASSWD pour autre chose ? Non - c'est limité strictement à `/usr/bin/firewall-cmd`, et cet user a déjà sudo de toute façon.
 
----
 
 ## 10. Validation Pydantic stricte
 
@@ -467,7 +455,6 @@ Conséquence : tout champ inattendu **lève une `ValidationError`**. Visible :
 - **`flatpak.app`** doit matcher `^[a-zA-Z0-9._-]+$` et contenir au moins un `.`
 - **`name`** non vide (min_length=1)
 
----
 
 ## Protections de runtime
 
@@ -496,7 +483,6 @@ Empêche deux clics rapides sur "Installer" de spawner deux subprocess concurren
 
 Voir [docs/USER_GUIDE.md](USER_GUIDE.md) et le commit "Add bounded retention to prevent unbounded growth" pour détails.
 
----
 
 ## Reporting de vulnérabilités
 
@@ -505,6 +491,6 @@ Si tu identifies une vulnérabilité :
 1. **NE PAS** ouvrir une issue GitHub publique
 2. Envoyer un mail à l'adresse du repo owner (`git log --format='%ae' main | head -1`)
 3. Inclure : description, vecteur d'attaque, impact estimé, version (`git rev-parse HEAD`)
-4. Une réponse sous 7 jours est l'objectif (best-effort, c'est un projet bénévole)
+4. Une réponse sous 7 jours est l'objectif (meilleur effort, c'est un projet bénévole)
 
 Les fix se font sur main puis sont signalés dans [CHANGELOG.md](CHANGELOG.md) avec un préfixe `[SECURITY]`.

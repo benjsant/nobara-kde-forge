@@ -2,7 +2,6 @@
 
 Solutions aux problèmes courants. Si ton problème n'est pas listé, regarde [docs/USER_GUIDE.md](USER_GUIDE.md) ou ouvre une issue.
 
----
 
 ## Sommaire
 
@@ -17,7 +16,6 @@ Solutions aux problèmes courants. Si ton problème n'est pas listé, regarde [d
 9. [Audio (PipeWire)](#audio-pipewire)
 10. [Performances / UI](#performances--ui)
 
----
 
 ## Lancement / démarrage
 
@@ -39,7 +37,6 @@ rm /tmp/nobaraforgekde.lock
 
 Au prochain `./nobaraforgeKDE.sh`, le lock stale sera détecté et écrasé automatiquement.
 
----
 
 ### Le navigateur ne s'ouvre pas
 
@@ -47,7 +44,6 @@ Le launcher fait `webbrowser.open(URL)` après 2s. Sur certains setups (X11 forw
 
 **Solution** : ouvre manuellement http://localhost:5000 dans ton navigateur.
 
----
 
 ### `uv: command not found` après installation
 
@@ -71,7 +67,6 @@ export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 
 **Solution préférée** sur Nobara : `sudo dnf install -y uv` directement.
 
----
 
 ### Erreur Python "Module not found: flask" ou "pydantic"
 
@@ -87,7 +82,6 @@ uv run python -c "import flask, pydantic; print('OK')"
 
 Si `uv sync` échoue : vérifie ton fichier `pyproject.toml`, ou supprime `.venv/` et `uv.lock` puis relance.
 
----
 
 ### Port 5000 déjà utilisé
 
@@ -106,7 +100,6 @@ ss -tlnp | grep :5000
 
 > Note : changer le port casse aussi le check `register_security(app, port=PORT)` côté middleware Host check. Adapte les deux.
 
----
 
 ## Sudo / permissions
 
@@ -124,13 +117,11 @@ Puis re-clique sur l'action dans l'UI. Le cache reste actif ~15 min après chaqu
 
 **Solution durable** : ferme l'app (Quitter) et relance `./nobaraforgeKDE.sh` (réinitialise le cache + le loop keeper).
 
----
 
 ### Toggle service échoue avec "Cache sudo expire - relancez l'app"
 
 Idem ci-dessus. Le toggle a tenté `sudo -n systemctl enable/disable --now <service>` et sudo a refusé sans password.
 
----
 
 ### `/etc/sudoers.d/nobaraforgekde` reste après crash
 
@@ -142,7 +133,6 @@ Le launcher devrait le nettoyer via `trap cleanup EXIT`, mais si tué par SIGKIL
 sudo rm -f /etc/sudoers.d/nobaraforgekde
 ```
 
----
 
 ### `firewall-cmd` demande quand même un password
 
@@ -159,7 +149,6 @@ sudo cat /etc/sudoers.d/nobaraforgekde
 ./nobaraforgeKDE.sh
 ```
 
----
 
 ## Installation de paquets
 
@@ -169,7 +158,6 @@ Le `task_lock` est resté coincé après un crash interne.
 
 **Solution** : redémarre l'app (Quitter + `./nobaraforgeKDE.sh`).
 
----
 
 ### DNF lock error : "Another DNF instance running"
 
@@ -184,7 +172,6 @@ sudo systemctl stop packagekit
 # Relancer l'install via l'UI
 ```
 
----
 
 ### Paquet "no match for argument: X" lors d'une install
 
@@ -206,7 +193,6 @@ dnf search <package>
 
 Puis ouvre une issue avec le nom du paquet pour qu'on le retire / remplace dans le profil.
 
----
 
 ### Flatpak install timeout sur une grosse app (Bottles, Heroic)
 
@@ -219,7 +205,6 @@ export NOBARAFORGEKDE_SCRIPT_TIMEOUT=14400  # 4 heures
 
 Défaut : 7200 secondes (2h).
 
----
 
 ### Profil installé mais des paquets ont échoué silencieusement
 
@@ -230,7 +215,6 @@ L'install continue même si certains paquets échouent (par design - éviter qu'
 - `logs/nobaraforgekde.log` garde la trace persistante
 - `Historique` dans l'UI : les entries avec `success=false` (badge rouge)
 
----
 
 ## Thèmes
 
@@ -244,7 +228,6 @@ sudo dnf install -y sassc
 
 Puis relance l'install du thème.
 
----
 
 ### Thème cloné depuis git mais "Installation terminée mais theme non trouve"
 
@@ -263,7 +246,6 @@ ls ~/.themes/ ~/.icons/ ~/.local/share/icons/
 # et corrige le champ "name_to_use" pour qu'il matche.
 ```
 
----
 
 ### Thème installé en `~/.themes` mais Plasma ne le voit pas
 
@@ -271,7 +253,6 @@ KDE Plasma scan `~/.themes` pour GTK, mais pour les **thèmes Plasma natifs** (.
 
 Pour appliquer un thème GTK dans KDE → **Paramètres bureau → Thème GTK** dans NobaraForgeKDE (utilise `kwriteconfig6` qui écrit dans `kdeglobals`).
 
----
 
 ### Thème installé en `~/.themes` invisible sur l'écran de connexion
 
@@ -279,7 +260,6 @@ C'est attendu : le DM (plasma-login-manager) tourne en tant qu'utilisateur syst�
 
 **Solution** : réinstalle le thème avec la case "Installation système" cochée → install dans `/usr/share/themes`.
 
----
 
 ### `bwrap: Can't create user namespace`
 
@@ -300,7 +280,6 @@ echo 'kernel.unprivileged_userns_clone = 1' | sudo tee /etc/sysctl.d/99-userns.c
 
 Sinon le sandbox bwrap est désactivé (fallback transparent), l'install marche mais sans isolation.
 
----
 
 ## Paramètres KDE
 
@@ -320,7 +299,6 @@ kwin_wayland --replace &
 
 Ou plus radical : **Tweaks rapides → Réinitialiser Plasma**.
 
----
 
 ### Settings retournent à leur ancienne valeur après une déconnexion
 
@@ -330,7 +308,6 @@ Ou plus radical : **Tweaks rapides → Réinitialiser Plasma**.
 - Bouton "Appliquer la configuration" (déclenche `_notify_kde_reload`)
 - OU `qdbus org.kde.KWin /KWin reconfigure`
 
----
 
 ### Kvantum activé mais les apps Qt n'utilisent pas le thème
 
@@ -348,7 +325,6 @@ echo 'QT_STYLE_OVERRIDE=kvantum' > ~/.config/environment.d/kvantum.conf
 
 Alternative : utilise `kvantummanager` (GUI), il setse la variable correctement.
 
----
 
 ## Backup / restore KDE
 
@@ -365,7 +341,6 @@ Causes :
 mv "monvieuxbackup.tar.gz" "kde-20250101-120000-recovered.tar.gz"
 ```
 
----
 
 ### Backup créé mais "Aucun fichier de config a sauvegarder"
 
@@ -376,7 +351,6 @@ ls ~/.config/kdeglobals ~/.config/kwinrc
 
 Si vide, tu n'as probablement jamais ouvert KDE Plasma sur ce compte (config pas encore générée).
 
----
 
 ### Restore ne change rien - KDE garde l'ancien état
 
@@ -385,7 +359,6 @@ Si vide, tu n'as probablement jamais ouvert KDE Plasma sur ce compte (config pas
 1. **Tweaks rapides → Réinitialiser Plasma** (relance plasmashell)
 2. OU déconnexion/reconnexion (clean)
 
----
 
 ### Mon backup contient juste 2-3 fichiers, je m'attendais à plus
 
@@ -393,7 +366,6 @@ Normal - seuls les fichiers existants au moment du backup sont inclus. Si tu n'u
 
 Liste des 15 fichiers couverts : voir [docs/USER_GUIDE.md#sauvegardes-config-bureau](USER_GUIDE.md#sauvegardes-config-bureau).
 
----
 
 ## Tweaks rapides
 
@@ -418,7 +390,6 @@ Vérifie aussi les logs :
 journalctl --user -u plasma-* --since "5 min ago"
 ```
 
----
 
 ### Toggle d'un service "non installé"
 
@@ -437,7 +408,6 @@ sudo dnf install <package>
 # Puis rafraîchir l'UI
 ```
 
----
 
 ### Sample rate PipeWire changé mais pas pris en compte
 
@@ -454,7 +424,6 @@ pw-metadata 0 clock.rate
 # Doit afficher value:'<rate>'
 ```
 
----
 
 ### Codecs Bluetooth premium activés mais casque reste en SBC
 
@@ -468,7 +437,6 @@ wpctl status | grep -A5 "Default Sink"
 # Cherche A2DP-LDAC ou A2DP-aptX-HD
 ```
 
----
 
 ## Plasma Login Manager
 
@@ -490,7 +458,6 @@ sudo systemctl enable --now plasmalogin
 # Redémarrer la machine pour appliquer
 ```
 
----
 
 ### Thème de l'écran de connexion reste Breeze par défaut malgré "Synchroniser"
 
@@ -498,7 +465,6 @@ Le thème de curseur que tu utilises (`kcminputrc`) est dans `~/.local/share/ico
 
 **Solution** : réinstalle le curseur avec **"Installation système"** cochée dans le catalogue Thèmes → curseurs.
 
----
 
 ## Audio (PipeWire)
 
@@ -512,7 +478,6 @@ sudo dnf install -y pipewire-utils
 
 L'app fonctionne sans (current_rate sera `null` dans `/api/tweaks/audio`).
 
----
 
 ### Pas de son après changement de sample rate à 192000 Hz
 
@@ -523,7 +488,6 @@ Tes hauts-parleurs/DAC ne supportent peut-être pas 192 kHz. Reviens à 48000 ou
 pactl list cards | grep -A20 "Available sample rates"
 ```
 
----
 
 ## Performances / UI
 
@@ -535,7 +499,6 @@ Le polling est toutes les 5s côté frontend + cache 8s côté serveur. Si la ma
 
 **Solution** : attends la fin de la tâche en cours (visible dans la task bar).
 
----
 
 ### Le panneau "Identité système Nobara" affiche "Mesa ?" ou "Plasma ?"
 
@@ -551,7 +514,6 @@ plasmashell --version
 rpm -q mesa-dri-drivers
 ```
 
----
 
 ### Status-bar affiche "Services en erreur : 1" - où voir lequel ?
 
@@ -564,7 +526,6 @@ journalctl -u <service>.service --since "1 hour ago"
 
 Souvent c'est un service Nobara mineur (ex: `accounts-daemon` en cycle d'erreur). L'app marche très bien malgré ça.
 
----
 
 ## Si vraiment rien ne marche
 

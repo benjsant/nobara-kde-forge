@@ -5,7 +5,6 @@ Tous les changements notables sont documentés ici.
 Format : [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning : [SemVer](https://semver.org/lang/fr/) - `MAJOR.MINOR.PATCH`.
 
----
 
 ## [Unreleased]
 
@@ -13,7 +12,6 @@ Versioning : [SemVer](https://semver.org/lang/fr/) - `MAJOR.MINOR.PATCH`.
 - Création du pack docs complet : `docs/USER_GUIDE.md`, `ARCHITECTURE.md`, `API.md`, `SECURITY.md`, `TROUBLESHOOTING.md`, `CONTRIBUTING.md`, `CHANGELOG.md`
 - README mis à jour pour refléter toutes les features post-port
 
----
 
 ## [0.2.0] - 2026-05-27
 
@@ -104,7 +102,7 @@ Pass de features majeur après le port initial depuis minty_forge.
 
 ### Sécurité
 
-- **Backup KDE - defense en profondeur** : whitelist + validation tar (anti path-traversal `..`, anti chemin absolu, regex filename strict)
+- **Backup KDE - validation multi-niveau** : whitelist + validation tar (anti path-traversal `..`, anti chemin absolu, regex filename strict)
 - **Services systemd** : whitelist côté module ET route
 - **Audio** : drop-ins **user-level** uniquement (jamais dans `/etc/`)
 
@@ -117,7 +115,6 @@ Pass de features majeur après le port initial depuis minty_forge.
 
 - [CLAUDE.md](../CLAUDE.md) mis à jour avec nouveaux modules, features et profil communication
 
----
 
 ## [0.1.0] - 2026-04-XX
 
@@ -159,7 +156,6 @@ Premier port complet depuis [minty_forge](https://github.com/benjsant/minty_forg
 
 - ~39 tests pytest (schemas round-trip, security middleware, sandbox, lockfile, power, app smoke)
 
----
 
 ## [archive/laptop]
 
@@ -174,7 +170,6 @@ Voir https://github.com/benjsant/nobara-kde-forge/tree/archive/laptop pour le co
 
 Le seul élément de "gestion laptop" gardé dans main est le **warning batterie** ([utils/power.py](../utils/power.py)) - banner UI quand l'utilisateur lance une install en étant sur batterie (risque de coupure mid-install).
 
----
 
 ## Conventions de versioning pour le futur
 

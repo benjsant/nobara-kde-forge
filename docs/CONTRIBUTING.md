@@ -2,7 +2,6 @@
 
 Merci de l'intérêt ! Ce guide couvre le setup dev, les conventions et les patterns courants pour ajouter de la valeur au projet.
 
----
 
 ## Sommaire
 
@@ -16,7 +15,6 @@ Merci de l'intérêt ! Ce guide couvre le setup dev, les conventions et les patt
 8. [Workflow git](#workflow-git)
 9. [Convention de commit](#convention-de-commit)
 
----
 
 ## Setup dev
 
@@ -51,7 +49,6 @@ uv run python -c "import flask, pydantic; print('OK')"
 - **pre-commit** - hooks de validation
 - **pytest** - tests
 
----
 
 ## Conventions
 
@@ -60,7 +57,7 @@ uv run python -c "import flask, pydantic; print('OK')"
 - **Style** : ruff strict (`select = ["E", "F", "I", "B", "SIM", "UP", "C4"]`, voir [pyproject.toml](../pyproject.toml))
 - **Line length** : 110 (relax de la PEP 8)
 - **f-strings** plutôt que `.format()` ou `%`
-- **Type hints** sur les signatures publiques (best-effort sur le reste)
+- **Type hints** sur les signatures publiques (meilleur effort sur le reste)
 - **Docstrings** en français, courtes, en haut des modules et des fonctions publiques
 - **JAMAIS `shell=True`** dans subprocess. Utilise `utils.subprocess_utils.run_command([list])`.
 
@@ -87,7 +84,6 @@ uv run python -c "import flask, pydantic; print('OK')"
 - Functions JS définies à la racine du `<script>` dans `app.js`
 - Pour les sections nouvelles, **préférer Alpine** (composant + `x-data`) plutôt que vanilla `innerHTML`
 
----
 
 ## Pre-commit hooks
 
@@ -109,7 +105,6 @@ Hooks actifs ([.pre-commit-config.yaml](../.pre-commit-config.yaml)) :
 uv run --group dev ruff format .
 ```
 
----
 
 ## Ajouter un profil
 
@@ -193,7 +188,6 @@ Commit message : `Add profile: <slug> (<short description>)`
 
 Inclure dans le body : pourquoi ce profil, quel use case, quel hardware/use case ça couvre que les profils existants ne couvrent pas.
 
----
 
 ## Ajouter un thème au catalogue
 
@@ -249,7 +243,6 @@ Puis :
 - Aller dans **Paramètres bureau → Thème GTK** (ou Icones/Curseurs/Kvantum)
 - Le nouveau thème doit apparaître dans le sélecteur
 
----
 
 ## Ajouter une route REST
 
@@ -346,7 +339,6 @@ Si l'endpoint est appelé depuis l'UI :
 - Fonction JS dans `web/static/js/app.js` (préférer un composant Alpine si nouvelle section)
 - Appeler `loadMonFeature()` dans `DOMContentLoaded`
 
----
 
 ## Ajouter un test
 
@@ -430,7 +422,6 @@ uv run --group dev pytest tests/test_kde_backup.py::test_full_cycle -v
 uv run --group dev pytest tests/ --cov=utils --cov=routes
 ```
 
----
 
 ## Workflow git
 
@@ -474,7 +465,6 @@ CI fait ça automatiquement sur push/PR.
 - Squash si la feature a plein de commits "WIP"/"fix typo" (`git rebase -i HEAD~N` avant merge)
 - Pas de merge commits pour les petites features (garde l'historique propre)
 
----
 
 ## Convention de commit
 
@@ -516,7 +506,7 @@ Polish: atomic audio config writes + structured state logging
 
 - Pourquoi ce changement (le "what" se voit dans le diff)
 - Choix techniques notables
-- Trade-offs
+- Compromiss
 - Liens vers issue/PR si applicable
 
 ### Co-Authored-By
@@ -526,7 +516,6 @@ Si Claude a aidé sur le code (comme dans ce projet) :
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
----
 
 ## Checklist PR
 
@@ -544,7 +533,6 @@ Avant d'ouvrir une PR :
 - [ ] Si route nouvelle : code HTTP cohérent + format de réponse standard
 - [ ] Si module utils nouveau : `tests/test_<module>.py` créé
 
----
 
 ## Questions / discussions
 

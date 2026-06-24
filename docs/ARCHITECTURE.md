@@ -2,7 +2,6 @@
 
 Vue d'ensemble technique de NobaraForgeKDE pour les contributeurs.
 
----
 
 ## Sommaire
 
@@ -18,7 +17,6 @@ Vue d'ensemble technique de NobaraForgeKDE pour les contributeurs.
 10. [Subprocess & shell safety](#subprocess--shell-safety)
 11. [Décisions de design notables](#décisions-de-design-notables)
 
----
 
 ## Stack technique
 
@@ -37,7 +35,6 @@ Vue d'ensemble technique de NobaraForgeKDE pour les contributeurs.
 
 Le projet est volontairement **léger en dépendances** : Flask + Pydantic. Pas d'ORM, pas de SQLite, pas de framework JS lourd. Toute la persistance est en JSON sur disque.
 
----
 
 ## Vue d'ensemble
 
@@ -93,7 +90,6 @@ Le projet est volontairement **léger en dépendances** : Flask + Pydantic. Pas 
                               └───────────────┘
 ```
 
----
 
 ## Organisation des dossiers
 
@@ -218,7 +214,6 @@ nobara-kde-forge/
 └── .github/workflows/ci.yml    # CI : matrix Python 3.10-3.13
 ```
 
----
 
 ## Cycle de vie d'une instance
 
@@ -269,7 +264,6 @@ nobara-kde-forge/
 - _current_process (global) : référence au subprocess actif pour cancel via SIGKILL
 ```
 
----
 
 ## Flow d'une installation de profil
 
@@ -318,7 +312,6 @@ Exemple : utilisateur sélectionne `gaming` + `multimedia` et clique "Installer"
    - Affiche toast "Profils installés"
 ```
 
----
 
 ## Threading & concurrence
 
@@ -352,7 +345,6 @@ Exemple : utilisateur sélectionne `gaming` + `multimedia` et clique "Installer"
 
 Pas de lock car les opérations dict.get/dict.set sont atomiques sous GIL CPython et les lectures concurrentes sont idempotentes (au pire double exécution de `gather()`).
 
----
 
 ## État persistant
 
@@ -376,7 +368,6 @@ tmp.replace(path)  # rename atomique POSIX
 
 Si crash entre write et replace : on garde l'ancien fichier intact.
 
----
 
 ## Schémas Pydantic
 
@@ -416,7 +407,6 @@ def validate_app_id(cls, v):
 
 Conséquence : impossible d'avoir un fichier `configs/profiles/X.json` avec une typo qui passe silencieusement. Validation au démarrage de l'app + en CI via `test_schemas.py`.
 
----
 
 ## Frontend Alpine.js
 
@@ -477,7 +467,6 @@ Palette **violet Nobara** (#9b59b6 primary, #7d3c98 secondary). Tout via CSS var
 
 Limites connues : ~63 styles inline dans le HTML, ~82 dans des innerHTML JS → candidat à un cleanup (extraction en classes utilitaires).
 
----
 
 ## Subprocess & shell safety
 
@@ -522,7 +511,6 @@ Fallback transparent si `bwrap` absent.
 - Sudoers temporaire `/etc/sudoers.d/nobaraforgekde` créé par le launcher uniquement pour `firewall-cmd`. Auto-cleanup à `EXIT`.
 - Toutes les autres commandes sudo utilisent le cache de session (renouvelé toutes les 50s par le launcher).
 
----
 
 ## Décisions de design notables
 
@@ -562,7 +550,7 @@ Fallback transparent si `bwrap` absent.
 - Sans cap, l'historique grossit indéfiniment (1 entry par paquet installé)
 - Au-delà de quelques milliers, l'UI history devient lente à charger
 - Les vieilles entrées (>1 an) ne sont pas pertinentes pour un rollback
-- Trade-off : on perd le rollback des très anciennes installs, mais on garde l'UI fluide
+- Compromis : on perd le rollback des très anciennes installs, mais on garde l'UI fluide
 
 ### Pourquoi pas de tests E2E navigateur ?
 
@@ -570,7 +558,6 @@ Fallback transparent si `bwrap` absent.
 - Les tests unitaires + smoke Flask donnent déjà 85% de confiance
 - Le reste est testé manuellement en VM (ce que l'utilisateur fait)
 
----
 
 ## Pour aller plus loin
 

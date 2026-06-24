@@ -11,7 +11,6 @@ Port du projet [minty_forge](https://github.com/benjsant/minty_forge) (Linux Min
 
 Interface web Flask sur `http://localhost:5000` (ou mode CLI). Installe paquets DNF, Flatpaks, paquets externes (VSCode, Docker, Brave…), thèmes GTK/Plasma/icônes/curseurs/Kvantum, configure KDE Plasma, le firewall, le display manager Plasma Login, sauvegarde la config bureau, expose des tweaks rapides (reset Plasma, services systemd, audio PipeWire/BT) et plus.
 
----
 
 ## Pourquoi ?
 
@@ -19,7 +18,6 @@ Quand on installe une Nobara KDE, on a souvent les mêmes manipulations à faire
 
 C'est un **outil de plus**, pas un remplacement de `nobara-welcome` ou `nobara-updater` - au contraire, il les intègre et les expose dans son UI.
 
----
 
 ## Lancement
 
@@ -54,7 +52,6 @@ uv run python nobara_kde_forge.py --profile gaming --dry-run
 
 > Note : les **paquets installés ne sont PAS supprimés** par `--uninstall`. Pour ça, utilisez le rollback dans l'UI (`Historique → Tout annuler`).
 
----
 
 ## Profils inclus (16)
 
@@ -79,7 +76,6 @@ uv run python nobara_kde_forge.py --profile gaming --dry-run
 
 Auto-détection GPU : le profil opposé (NVIDIA si AMD détecté, et vice versa) est **verrouillé** sauf confirmation explicite.
 
----
 
 ## Features
 
@@ -124,7 +120,6 @@ NobaraForgeKDE expose les outils Nobara existants dans son UI plutôt que de les
 - `nobara-sync` - synchro métadonnées repos
 - `nobara-updater` - utilisé par défaut pour les MAJ système (fallback DNF)
 
----
 
 ## Documentation
 
@@ -139,7 +134,6 @@ NobaraForgeKDE expose les outils Nobara existants dans son UI plutôt que de les
 | [docs/CHANGELOG.md](docs/CHANGELOG.md) | Historique des versions |
 | [CLAUDE.md](CLAUDE.md) | Guide technique pour développeurs et IA |
 
----
 
 ## Configuration
 
@@ -149,7 +143,6 @@ Variable d'environnement | Défaut | Effet
 
 Tous les autres réglages se font via l'UI ou en éditant les JSON dans [`configs/`](configs/).
 
----
 
 ## Architecture (résumé)
 
@@ -179,7 +172,6 @@ tests/                     # 10 fichiers de tests pytest (~85 tests)
 
 Détails complets : [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) et [CLAUDE.md](CLAUDE.md).
 
----
 
 ## Sécurité
 
@@ -192,7 +184,6 @@ Détails complets : [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) et [CLAUDE.md](
 
 Détails : [docs/SECURITY.md](docs/SECURITY.md).
 
----
 
 ## Tester
 
@@ -203,7 +194,6 @@ uv run --group dev pytest tests/ -v
 
 CI GitHub Actions : matrix Python 3.10 → 3.13, compile + ruff + pytest.
 
----
 
 ## Compatibilité
 
@@ -212,7 +202,6 @@ CI GitHub Actions : matrix Python 3.10 → 3.13, compile + ruff + pytest.
 - ⚠️ Fedora KDE 42+ vanilla : devrait fonctionner sauf intégration `nobara-*` (qui retombera en fallback DNF)
 - ⚠️ Anciennes Nobara avec SDDM : l'UI affichera un warning et proposera la migration vers `plasma-login-manager`
 
----
 
 ## Licence
 

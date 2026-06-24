@@ -2,7 +2,6 @@
 
 Guide complet de l'interface NobaraForgeKDE, section par section.
 
----
 
 ## Sommaire
 
@@ -24,7 +23,6 @@ Guide complet de l'interface NobaraForgeKDE, section par section.
 16. [Mode CLI](#mode-cli)
 17. [Variables d'environnement](#variables-denvironnement)
 
----
 
 ## Premier lancement
 
@@ -47,7 +45,6 @@ L'app ouvre l'UI dans le navigateur par défaut. Si rien ne s'ouvre, va manuelle
 
 > **Arrêt propre** : `CTRL+C` dans le terminal ou bouton "Quitter" dans l'UI. Le sudoers temp et l'inhibit veille sont nettoyés via le `trap cleanup EXIT` du launcher.
 
----
 
 ## Vue d'ensemble de l'interface
 
@@ -89,7 +86,6 @@ L'UI est une page unique (scroll vertical) organisée en sections :
 └─────────────────────────────────────────────────────────┘
 ```
 
----
 
 ## Status bar
 
@@ -111,7 +107,6 @@ Une rangée de 9 indicateurs sous le header, mis à jour toutes les 5 secondes :
 Si **Sudo** passe rouge en cours de session : le cache a expiré. Relance l'app ou tape `sudo -v` dans un terminal.
 Si **Services en erreur** passe à un nombre rouge : ouvre un terminal et `systemctl --failed` pour diagnostiquer.
 
----
 
 ## Panneau Identité système Nobara
 
@@ -135,7 +130,6 @@ Deux rangées de "pills" affichent ce que Nobara fait déjà pour toi :
 
 Survol des pills : tooltip avec détails (kernel complet, liste LSM complète, options btrfs, etc.).
 
----
 
 ## Profils d'installation
 
@@ -186,7 +180,6 @@ Au démarrage, `lspci` est parsé pour détecter le GPU. Conséquences :
 - **Profil suggéré** : Le profil correspondant à ton GPU a un badge "Suggéré" doré
 - **Profil verrouillé** : Le profil opposé (NVIDIA si tu es AMD et vice versa) est grisé. Tu peux le débloquer manuellement en cliquant dessus (cas multi-GPU ou eGPU)
 
----
 
 ## Outils Nobara natifs
 
@@ -204,7 +197,6 @@ Si un outil n'est pas installé, le bouton est grisé avec un tooltip indiquant 
 
 Ces outils s'ouvrent dans **ta session graphique** (process détaché du serveur Flask), pas dans le navigateur.
 
----
 
 ## Paquets optionnels
 
@@ -214,7 +206,6 @@ Chaque paquet affiche son statut (`installé` / `non installé`). Le bouton **"I
 
 Édite [configs/optional_install.json](../configs/optional_install.json) pour ajouter/retirer des paquets.
 
----
 
 ## Catalogue de thèmes
 
@@ -248,7 +239,6 @@ Si tout OK → message succès + le thème apparaît dans la liste **Paramètres
 
 Pour qu'un thème soit utilisable sur l'écran de connexion, il **doit être installé en `/usr/share/`** (pas dans `~/.themes`) car le DM tourne en tant qu'utilisateur système. Coche "Installation système" pour ces thèmes.
 
----
 
 ## Paramètres du bureau (KDE)
 
@@ -304,7 +294,6 @@ Bouton **"Exporter config KDE actuelle"** : ouvre `/api/kde/export` qui téléch
 
 Le bouton "Mode sombre/clair" du header bascule entre `BreezeDark` et `BreezeLight` via `plasma-apply-colorscheme` (fallback `kwriteconfig6` si absent).
 
----
 
 ## Sauvegardes config bureau
 
@@ -343,9 +332,8 @@ Au-delà de **30 backups**, les plus anciens sont automatiquement supprimés. Ç
 
 ### Sécurité
 
-Chaque membre du tar est validé contre la whitelist + vérifié pour `..` et chemin absolu, même si le tar a été créé par nous (defense en profondeur contre un éventuel tar malicieusement échangé hors de l'app).
+Chaque membre du tar est validé contre la whitelist + vérifié pour `..` et chemin absolu, même si le tar a été créé par nous (validation multi-niveau contre un éventuel tar malicieusement échangé hors de l'app).
 
----
 
 ## Tweaks rapides
 
@@ -384,7 +372,6 @@ Deux contrôles :
 
 **Codecs Bluetooth premium** : toggle ON/OFF. Active `LDAC + aptX-HD + AAC` dans `~/.config/wireplumber/wireplumber.conf.d/51-nobaraforgekde-bt-codecs.conf`. Nécessaire pour les casques BT haut de gamme qui sinon tombent en SBC (qualité dégradée).
 
----
 
 ## Écran de connexion (Plasma Login)
 
@@ -411,7 +398,6 @@ Le bouton **"Synchroniser avec le bureau actuel"** copie ces valeurs depuis ta c
 
 > **Important** : les thèmes utilisés sur l'écran de connexion doivent être dans `/usr/share/themes` ou `/usr/share/icons` (pas `~/.themes` !) car le DM tourne en utilisateur système.
 
----
 
 ## Historique & rollback
 
@@ -442,7 +428,6 @@ Chaque ligne montre :
 - **Commandes externes** (`external_install` - VSCode, Docker repo, etc.) n'ont **pas de rollback automatique** (metadata `manual_rollback: True`). Tu vois l'historique mais le rollback est à faire à la main.
 - **Configurations KDE** ne passent pas par le state_manager (utilise `kwriteconfig6` direct). Pour ces changements, utilise plutôt **Sauvegardes config bureau** (backup avant + restore).
 
----
 
 ## Pare-feu (firewalld)
 
@@ -458,7 +443,6 @@ Si la status-bar montre "Sudo" rouge, ces boutons échoueront. Tape `sudo -v` au
 
 > Le launcher bash a déjà configuré `/etc/sudoers.d/nobaraforgekde` pour permettre `sudo -n firewall-cmd` (sans mot de passe), spécifiquement pour les opérations firewall fréquentes. Ce sudoers est **supprimé à la fermeture** de l'app.
 
----
 
 ## Logs temps réel
 
@@ -481,7 +465,6 @@ Le panneau du bas affiche les logs en streaming SSE (Server-Sent Events). Tout c
 
 Le fichier `logs/nobaraforgekde.log` est en rotation : **5 Mo par fichier, 3 sauvegardes** = 20 Mo max sur disque. Au-delà, les plus anciens sont supprimés automatiquement.
 
----
 
 ## Mode CLI
 
@@ -504,7 +487,6 @@ uv run python nobara_kde_forge.py --help
 
 Le mode CLI réutilise la même logique d'installation que l'UI (via `scripts.profile_install.install_profile`), avec sortie console colorée (utils/logging_utils).
 
----
 
 ## Variables d'environnement
 
@@ -514,7 +496,6 @@ Le mode CLI réutilise la même logique d'installation que l'UI (via `scripts.pr
 | `XDG_RUNTIME_DIR` | `/run/user/<uid>` | Emplacement du lock file (fallback `/tmp` si absent) |
 | `XDG_CONFIG_HOME` | `~/.config` | Lu par `kwriteconfig6` pour résoudre les paths des fichiers de config KDE |
 
----
 
 ## Astuces
 
